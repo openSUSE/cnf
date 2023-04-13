@@ -1,9 +1,10 @@
 # Command not found handler for openSUSE
 
-A replacement for a [python based command-not-found handler](
+ 1. A replacement for a [python based command-not-found handler](
 https://github.com/openSUSE/scout/blob/master/handlers/bin/command-not-found) for openSUSE.
-
-Written in Rust. Uses [libsolv](https://github.com/openSUSE/libsolv) to query the content of all enabled repositories.
+ 2. Written in Rust, so has no other runtime dependencies.
+ 3. Uses [libsolv](https://github.com/openSUSE/libsolv) under the hood, so is 100% compatible
+    with a zypper.
 
 ## Build
 
