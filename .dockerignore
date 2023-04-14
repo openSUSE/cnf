@@ -1,0 +1,8 @@
+.git/*
+.github/*
+target/*
+
+pyproject.toml
+poetry.lock
+.pytest_cache/*
+integration_tests/*
