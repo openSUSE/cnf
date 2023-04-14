@@ -5,7 +5,6 @@ description = "command not found handler for openSUSE"
 authors = ["Michal Vyskocil <michal.vyskocil@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "cnf_rs"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
