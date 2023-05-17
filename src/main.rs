@@ -4,20 +4,19 @@
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
-extern crate configparser;
 extern crate glob;
 extern crate libc;
 
 use std::env;
-use std::ffi::CString;
 use std::ffi::CStr;
-use std::path::PathBuf;
+use std::ffi::CString;
 use std::path::Path;
+use std::path::PathBuf;
+use std::process::exit;
 use std::result::Result;
 use std::vec::Vec;
-use std::process::exit;
 
-use configparser::ini::Ini;
+mod ini;
 
 const REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
 
@@ -34,7 +33,7 @@ fn main() {
         println!("Absolute path to '{}' is '{}'. Please check your $PATH variable to see whether it contains the mentioned path.", term, bin_path.display());
         exit(0);
     }
-    
+
     let sbin_path = &Path::new("/usr/sbin").join(Path::new(term));
     if Path::exists(sbin_path) {
         println!("Absolute path to '{}' is '{}', so running it may require superuser privileges (eg. root).", term, sbin_path.display());
@@ -42,8 +41,11 @@ fn main() {
     }
 
     match search_solv(&term) {
-        Err(msg) => {println!("{}", msg); exit(127);},
-        _ => {},
+        Err(msg) => {
+            println!("{}", msg);
+            exit(127);
+        }
+        _ => {}
     }
 }
 
@@ -63,17 +65,26 @@ fn search_solv(term: &str) -> Result<(), String> {
         String::from("<selected_package>")
     };
 
-    println!("
-The program '{}' can be found in following packages:", &term);
+    println!(
+        "
+The program '{}' can be found in following packages:",
+        &term
+    );
 
     for r in results {
-        println!("  * {} [ path: {}/{}, repository: zypp ({}) ]", r.Package, r.Path, &term, r.Repo);
+        println!(
+            "  * {} [ path: {}/{}, repository: zypp ({}) ]",
+            r.Package, r.Path, &term, r.Repo
+        );
     }
 
-    println!("
+    println!(
+        "
 Try installing with:
     sudo zypper install {}
-", suggested_package);
+",
+        suggested_package
+    );
     Ok(())
 }
 
@@ -86,21 +97,16 @@ fn load_repos() -> Result<Vec<SolvInput>, String> {
     let mut repos: Vec<SolvInput> = Vec::new();
     for repo in glob::glob(REPO_GLOB).map_err(stringify)? {
         let repo = repo.map_err(stringify)?;
-        let mut parser = Ini::new();
 
-        let _ = parser.load(&repo)?;
-
-        for section in parser.sections() {
-            let enabled = parser.get(&section, "enabled").unwrap_or(String::new());
-            if enabled == "1" {
-                let solv_glob = format!("/var/cache/zypp/solv/{}/solv", section.replace("/", "_"));
-                for path in glob::glob(&solv_glob).map_err(stringify)? {
-                    let i = SolvInput {
-                        name: section.clone(),
-                        path: path.map_err(stringify)?,
-                    };
-                    repos.push(i);
-                }
+        let info = ini::repo_enabled(&repo)?;
+        if info.enabled {
+            let solv_glob = format!("/var/cache/zypp/solv/{}/solv", info.name.replace("/", "_"));
+            for path in glob::glob(&solv_glob).map_err(stringify)? {
+                let i = SolvInput {
+                    name: info.name.clone(),
+                    path: path.map_err(stringify)?,
+                };
+                repos.push(i);
             }
         }
     }
@@ -122,8 +128,12 @@ impl SPool {
         };
 
         for input in repos {
-            let cname = CString::new(input.name.to_string()).map_err(|_e: std::ffi::NulError|-> String {String::from("input.name is null")})?;
-            let csolv = CString::new(input.path.display().to_string()).map_err(|_e: std::ffi::NulError|-> String {String::from("input.path is null")})?;
+            let cname = CString::new(input.name.to_string()).map_err(
+                |_e: std::ffi::NulError| -> String { String::from("input.name is null") },
+            )?;
+            let csolv = CString::new(input.path.display().to_string()).map_err(
+                |_e: std::ffi::NulError| -> String { String::from("input.path is null") },
+            )?;
             let repo: *mut Repo = unsafe { repo_create(pool, cname.into_raw()) };
             if repo.is_null() {
                 return Err(format!("pool_create({}) returned NULL", input.name));
@@ -132,12 +142,12 @@ impl SPool {
             unsafe {
                 let fp = fopen(csolv.into_raw(), CString::new("r").unwrap().into_raw());
                 if fp.is_null() {
-                    return Err(format!("can't open {}", input.path.display()))
+                    return Err(format!("can't open {}", input.path.display()));
                 }
                 let r = repo_add_solv(repo, fp, 0);
                 fclose(fp);
                 if r != 0 {
-                    return Err(format!("repo_add_solv failed on {}", input.path.display()))
+                    return Err(format!("repo_add_solv failed on {}", input.path.display()));
                 }
             }
         }
@@ -145,22 +155,33 @@ impl SPool {
         Ok(SPool { pool })
     }
 
-fn search(&self, term: &str) -> Vec<SearchResult> {
+    fn search(&self, term: &str) -> Vec<SearchResult> {
         let cterm = CString::new(term).unwrap();
         // https://stackoverflow.com/questions/38995701/how-do-i-pass-a-closure-through-raw-pointers-as-an-argument-to-a-c-function/38997480#38997480
         let mut results: Vec<SearchResult> = Vec::new();
         let mut append = |repo: String, package: String, path: String| {
-            results.push(SearchResult{Repo: repo.clone(), Package: package, Path: path});
+            results.push(SearchResult {
+                Repo: repo.clone(),
+                Package: package,
+                Path: path,
+            });
         };
         let mut trait_obj: &mut dyn FnMut(String, String, String) = &mut append;
         let trait_obj_ref = &mut trait_obj;
 
         unsafe {
-            pool_search(self.pool, 0, solv_knownid_SOLVABLE_FILELIST as i32, cterm.as_ptr(), SEARCH_STRING as i32, Some(callback), trait_obj_ref as *mut _ as *mut libc::c_void);
+            pool_search(
+                self.pool,
+                0,
+                solv_knownid_SOLVABLE_FILELIST as i32,
+                cterm.as_ptr(),
+                SEARCH_STRING as i32,
+                Some(callback),
+                trait_obj_ref as *mut _ as *mut libc::c_void,
+            );
         }
         results
     }
-
 }
 
 struct SearchResult {
@@ -175,23 +196,30 @@ impl Drop for SPool {
     }
 }
 
-unsafe extern "C" fn callback(cbdata: *mut libc::c_void, s: *mut s_Solvable, data: *mut s_Repodata, _key: *mut s_Repokey, kv: *mut s_KeyValue) -> i32 {
+unsafe extern "C" fn callback(
+    cbdata: *mut libc::c_void,
+    s: *mut s_Solvable,
+    data: *mut s_Repodata,
+    _key: *mut s_Repokey,
+    kv: *mut s_KeyValue,
+) -> i32 {
     // TODO: handle NULL and error here gracefully
     let repo = CStr::from_ptr((*(*s).repo).name).to_str().unwrap();
-    let name = CStr::from_ptr(solvable_lookup_str(s, solv_knownid_SOLVABLE_NAME as i32)).to_str().unwrap();
-    let path = CStr::from_ptr(repodata_dir2str(data, (*kv).id, 0 as *const i8)).to_str().unwrap();
+    let name = CStr::from_ptr(solvable_lookup_str(s, solv_knownid_SOLVABLE_NAME as i32))
+        .to_str()
+        .unwrap();
+    let path = CStr::from_ptr(repodata_dir2str(data, (*kv).id, 0 as *const i8))
+        .to_str()
+        .unwrap();
 
     let append: &mut &mut dyn FnMut(String, String, String) = &mut *(cbdata as *mut _);
-    append(
-        String::from(repo),
-        String::from(name),
-        String::from(path),
-    );
+    append(String::from(repo), String::from(name), String::from(path));
     0
 }
 
-fn stringify<T>(e: T) -> String 
-where T: std::fmt::Display
+fn stringify<T>(e: T) -> String
+where
+    T: std::fmt::Display,
 {
     return format!("{}", e);
 }
