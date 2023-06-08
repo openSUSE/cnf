@@ -6,6 +6,8 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 extern crate glob;
 extern crate libc;
+#[macro_use]
+extern crate tr;
 
 use std::env;
 use std::ffi::CStr;
@@ -21,6 +23,8 @@ mod ini;
 const REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
 
 fn main() {
+    // use the tr_init macro to tell gettext where to look for translations
+    tr_init!("/usr/share/locale/");
     let args: Vec<String> = std::env::args().collect();
 
     let term = match args.get(1) {
@@ -30,7 +34,7 @@ fn main() {
 
     let bin_path = &Path::new("/usr/bin").join(Path::new(term));
     if Path::exists(bin_path) {
-        println!("Absolute path to '{}' is '{}'. Please check your $PATH variable to see whether it contains the mentioned path.", term, bin_path.display());
+        println!("{}", tr!("Absolute path to '{}' is '{}/{}'. Please check your $PATH variable to see whether it contains the mentioned path.", term, bin_path.display(), term));
         exit(0);
     }
 
