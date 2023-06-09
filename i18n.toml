@@ -1,0 +1,21 @@
+# (Required) The language identifier of the language used in the
+# source code for gettext system, and the primary fallback language
+# (for which all strings must be present) when using the fluent
+# system.
+fallback_language = "en"
+
+[gettext]
+# (Required) The languages that the software will be translated into.
+target_languages = ["cs"]
+
+# (Required) Path to the output directory, relative to `i18n.toml` of the crate
+# being localized.
+output_dir = "i18n"
+
+# (Optional) The reporting address for msgid bugs. This is the email address or
+# URL to which the translators shall report bugs in the untranslated
+# strings.
+msg_bugs_address = "translation-owner@lists.opensuse.org"
+
+# (Optional) Set the copyright holder for the generated files.
+copyright_holder = "openSUSE project"
