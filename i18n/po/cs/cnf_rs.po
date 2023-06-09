@@ -16,8 +16,8 @@ msgstr ""
 
 #: src/main.rs:37
 msgid ""
-"Absolute path to '{}' is '{}/{}'. Please check your $PATH variable to see "
+"Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
 msgstr ""
-"Absolutní cesta k '{}' je '{}/{}'. Prosím ověřte, zda "
+"Absolutní cesta k '{}' je '{}'. Prosím ověřte, zda "
 "proměnná $PATH obsahuje zmíněnou cestu."

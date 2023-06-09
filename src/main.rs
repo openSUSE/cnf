@@ -34,7 +34,7 @@ fn main() {
 
     let bin_path = &Path::new("/usr/bin").join(Path::new(term));
     if Path::exists(bin_path) {
-        println!("{}", tr!("Absolute path to '{}' is '{}/{}'. Please check your $PATH variable to see whether it contains the mentioned path.", term, bin_path.display(), term));
+        println!("{}", tr!("Absolute path to '{}' is '{}'. Please check your $PATH variable to see whether it contains the mentioned path.", term, bin_path.display()));
         exit(0);
     }
 
