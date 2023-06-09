@@ -36,4 +36,4 @@ jobs:
         run: poetry run pytest -vv -n auto
         env:
           # force docker runtime to be used, so the docker-cache can fire up
-          CONTAINER_RUNTIME=docker
+          CONTAINER_RUNTIME: docker
