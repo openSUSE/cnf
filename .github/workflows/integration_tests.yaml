@@ -37,3 +37,8 @@ jobs:
         env:
           # force docker runtime to be used, so the docker-cache can fire up
           CONTAINER_RUNTIME: docker
+
+      - name: cleanup docker images
+        run: |
+          # remove images called <none>:<none>, they can't be saved anyway
+          docker image list --format "{{ .Repository }} {{ .Tag }} {{ .ID }}" | awk '/<none>/{print $3}' | xargs docker image rm
