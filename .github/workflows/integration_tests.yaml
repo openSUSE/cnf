@@ -13,13 +13,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # cache pulled docker images
+      - uses: ScribeMD/docker-cache@0.3.3
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles('integration_tests/test_cnf_binary.py') }}
+      - name: docker pull
+        run : |
+          docker pull registry.opensuse.org/opensuse/tumbleweed:latest
+          docker pull registry.opensuse.org/opensuse/leap:15.5
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
           python-version: "3.x"
+          cache: 'pip'
 
-      - run: |
+      - name: install poetry
+        run: |
           pip install --upgrade poetry
           poetry install
 
-      - run: poetry run pytest -vv -n auto
+      - name: run pytest
+        run: poetry run pytest -vv -n auto
+        env:
+          # force docker runtime to be used, so the docker-cache can fire up
+          CONTAINER_RUNTIME: docker
+
+      - name: cleanup docker images
+        run: |
+          # remove images called <none>:<none>, they can't be saved anyway
+          docker image list --format "{{ .Repository }} {{ .Tag }} {{ .ID }}" | awk '/<none>/{print $3}' | xargs docker image rm
