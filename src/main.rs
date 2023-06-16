@@ -40,7 +40,7 @@ fn main() {
 
     let sbin_path = &Path::new("/usr/sbin").join(Path::new(term));
     if Path::exists(sbin_path) {
-        println!("Absolute path to '{}' is '{}', so running it may require superuser privileges (eg. root).", term, sbin_path.display());
+        println!("{}", tr!("Absolute path to '{}' is '{}', so running it may require superuser privileges (eg. root).", term, sbin_path.display()));
         exit(0);
     }
 
@@ -60,35 +60,45 @@ fn search_solv(term: &str) -> Result<(), String> {
     let results = pool.search(&term);
 
     if results.len() == 0 {
-        return Err(format!(" {}: command not found", term));
+        return Err(format!(" {}: {}", term, tr!("command not found")));
     }
 
     let suggested_package = if results.len() == 1 {
         results[0].Package.clone()
     } else {
-        String::from("<selected_package>")
+        String::from(tr!("<selected_package>"))
     };
 
+    println!("");
     println!(
-        "
-The program '{}' can be found in following packages:",
-        &term
+        "{}",
+        tr!(
+            "The program '{}' can be found in the following package:"
+                | "The program '{}' can be found in following packages:" % results.len(),
+            &term
+        )
     );
 
     for r in results {
         println!(
-            "  * {} [ path: {}/{}, repository: zypp ({}) ]",
-            r.Package, r.Path, &term, r.Repo
+            "{}",
+            tr!(
+                "  * {} [ path: {}/{}, repository: {} ]",
+                r.Package,
+                r.Path,
+                &term,
+                r.Repo
+            )
         );
     }
 
-    println!(
-        "
-Try installing with:
-    sudo zypper install {}
-",
-        suggested_package
+    println!("");
+    print!(
+        "{}",
+        tr!("Try installing with:
+   ")
     );
+    println!(" sudo zypper install {}\n", suggested_package);
     Ok(())
 }
 
