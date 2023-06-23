@@ -47,10 +47,6 @@ Absolute path to 'vim' is '/usr/bin/vim'. Please check your $PATH variable to se
 > source command_not_found_bash
 > export COMMAND_NOT_FOUND_BIN=./target/debug/cnf-rs
 > cmake
-If 'cmake' is not a typo you can use command-not-found to lookup the package that contains it, like this:
-    ./target/debug/cnf-rs cmake
-> export COMMAND_NOT_FOUND_AUTO=1
-> cmake
 
 The program 'cmake' can be found in following packages:
   * cmake-full [ path: /usr/bin/cmake, repository: zypp (repo-oss) ]
