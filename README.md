@@ -63,5 +63,4 @@ Try installing with:
 ## TODO
 
  1. packaging
- 2. translation
- 3. make default in openSUSE
+ 1. make default in openSUSE
