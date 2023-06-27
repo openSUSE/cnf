@@ -6,7 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cargo-i18n = "0.2.10"
 glob = "0.3.1"
 libc = "0.2.140"
 tr = "0.1.7"
