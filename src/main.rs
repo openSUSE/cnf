@@ -24,7 +24,7 @@ const REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
 
 fn main() {
     // use the tr_init macro to tell gettext where to look for translations
-    tr_init!("/usr/share/locale/");
+    tr_init!("/usr/share/locale");
     let args: Vec<String> = std::env::args().collect();
 
     let term = match args.get(1) {
@@ -174,6 +174,9 @@ impl SPool {
         // https://stackoverflow.com/questions/38995701/how-do-i-pass-a-closure-through-raw-pointers-as-an-argument-to-a-c-function/38997480#38997480
         let mut results: Vec<SearchResult> = Vec::new();
         let mut append = |repo: String, package: String, path: String| {
+            if path != "/usr/bin" && path != "/usr/sbin" {
+                return;
+            }
             results.push(SearchResult {
                 Repo: repo.clone(),
                 Package: package,

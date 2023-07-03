@@ -6,6 +6,19 @@ https://github.com/openSUSE/scout/blob/master/handlers/bin/command-not-found) fo
  3. Uses [libsolv](https://github.com/openSUSE/libsolv) under the hood, so is 100% compatible
     with a zypper.
 
+## Differences
+
+|   | cnf-rs  | cnf   |
+|---|---------|-------|
+|Uses | `libsolv` | `libsov` |
+|Written in| Rust | shell, two packages in Python |
+|Detect enabled/disabled repos? | Yes | Yes |
+|Tries to refresh repos| No | Yes |
+|bash integration | Yes | Yes|
+|zsh integration | Yes | Yes |
+|turn off integration | uninstall package | magic variable |
+|localization | Yes (UTF-8) only | Yes |
+
 ## Build
 
 ```sh
