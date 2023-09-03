@@ -35,4 +35,4 @@ jobs:
 
       -
         name: Build cnf-rs
-        run: cargo build --debug
+        run: cargo build
