@@ -4,8 +4,16 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    // Tell cargo to look for shared libraries in the specified directory
-    println!("cargo:rustc-link-search=/usr/lib64");
+    // Tell cargo to look for libraries for various distributions
+    if std::path::Path::new("/usr/lib64/libsolv.a").exists() {
+        // openSUSE: has a static library only
+        println!("cargo:rustc-link-search=/usr/lib64");
+        println!("cargo:rustc-link-lib=static=solv");
+    } else {
+        // ubuntu-latest: this gets used on github actions and has a dynamic library only
+        println!("cargo:rustc-link-search=/usr/lib/x86_64-linux-gnu");
+        println!("cargo:rustc-link-lib=solv");
+    }
 
     // Tell cargo to tell rustc to link the system bzip2
     // shared library.
