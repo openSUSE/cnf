@@ -15,10 +15,6 @@ fn main() {
         println!("cargo:rustc-link-lib=solv");
     }
 
-    // Tell cargo to tell rustc to link the system bzip2
-    // shared library.
-    println!("cargo:rustc-link-lib=static=solv");
-
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
 
