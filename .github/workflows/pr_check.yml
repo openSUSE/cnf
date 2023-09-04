@@ -27,10 +27,5 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       -
-        name: debug
-        run: |
-          ls /usr/lib/x86_64-linux-gnu/libsolv.so* /usr/lib64/libsolv.a
-
-      -
         name: Build cnf-rs
         run: cargo build
