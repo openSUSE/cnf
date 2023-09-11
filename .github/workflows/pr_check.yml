@@ -9,7 +9,6 @@ on:
 
 jobs:
   ci:
-    name: Build and run the integration tests
     runs-on: ubuntu-latest
 
     steps:
