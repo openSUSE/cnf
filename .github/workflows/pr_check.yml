@@ -47,6 +47,8 @@ jobs:
           push: false
           tags: local/cnf-rs-ci:latest
 
+      - run: docker images
+
       -
         name: Integration test
         run: ./test/bats/bin/bats ./test
