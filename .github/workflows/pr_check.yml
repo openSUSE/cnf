@@ -33,10 +33,6 @@ jobs:
         name: Build cnf-rs
         run: cargo build
 
-      -
-        name: Integration test
-        run: ./test/bats/bin/bats ./test
-
       - uses: docker/setup-buildx-action@v1
 
       -
@@ -49,3 +45,8 @@ jobs:
           file: test/Dockerfile
           push: false
           tags: local/cnf-rs-ci:latest
+
+      -
+        name: Integration test
+        run: ./test/bats/bin/bats ./test
+
