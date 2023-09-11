@@ -43,6 +43,7 @@ jobs:
           cache-to: type=gha,mode=max
           context: test/
           file: test/Dockerfile
+          load: true
           push: false
           tags: local/cnf-rs-ci:latest
 
