@@ -2,7 +2,7 @@
 
  1. A replacement for a [python based command-not-found handler](
 https://github.com/openSUSE/scout/blob/master/handlers/bin/command-not-found) for openSUSE.
- 2. Written in Rust, so has no other runtime dependencies.
+ 2. Written in Rust, so has as little runtime dependencies as possible.
  3. Uses [libsolv](https://github.com/openSUSE/libsolv) under the hood, so is 100% compatible
     with a zypper.
 
@@ -69,7 +69,37 @@ Try installing with:
     sudo zypper install <selected_package>
 ```
 
-## TODO
+## Integration tests
 
- 1. packaging
- 1. make default in openSUSE
+Integration tests runs inside docker image tagged `local/cnf-rs-ci`. It is
+built as a part of Github Action and can be built locally as `cd test; docker
+build -t local/cnf-rs-ci:latest .`
+
+The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core)
+and in order to make it run, one needs to initialize the git submodules (`git
+submodule init`). Then tests can be executed using a following command
+
+```sh
+$ ./test/bats/bin/bats ./test/
+test.bats
+ ✓ root: installed /usr/bin/rpm
+ ✓ root: installed /usr/sbin/sysctl
+ ✓ root: not installed single package
+ ✓ root: not installed more packages
+ ✓ root: bash handler: not installed more packages
+ ✓ nonroot: not installed more packages
+
+6 tests, 0 failures
+
+```
+
+Every test can be executed on a command line. The `root.sh` wrapper mounts the
+binary to `/src/cnf-rs` and mounts the `libsolv.so.1` if running on ubuntu-amd64
+or if shared library is in `test/libsolv.so.1`. This is done in order to solve
+the packaging difference of a libsolv between openSUSE and Ubuntu.
+
+```sh
+$ ./root.sh /src/cnf-rs rpm
+Absolute path to 'rpm' is '/usr/bin/rpm'. Please check your $PATH variable to see whether it contains the mentioned path
+```
+
