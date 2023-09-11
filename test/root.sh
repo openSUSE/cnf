@@ -38,4 +38,4 @@ docker \
     --rm \
     --user "${USER}" \
     ${VOLUMES[*]} \
-    local/cnf-rc-ci:latest "${@}"
+    local/cnf-rs-ci:latest "${@}"
