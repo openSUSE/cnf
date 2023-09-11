@@ -225,9 +225,13 @@ unsafe extern "C" fn callback(
     let name = CStr::from_ptr(solvable_lookup_str(s, solv_knownid_SOLVABLE_NAME as i32))
         .to_str()
         .unwrap();
-    let path = CStr::from_ptr(repodata_dir2str(data, (*kv).id, 0 as *const i8))
-        .to_str()
-        .unwrap();
+    let path = CStr::from_ptr(repodata_dir2str(
+        data,
+        (*kv).id,
+        0 as *const std::os::raw::c_char,
+    ))
+    .to_str()
+    .unwrap();
 
     let append: &mut &mut dyn FnMut(String, String, String) = &mut *(cbdata as *mut _);
     append(String::from(repo), String::from(name), String::from(path));
