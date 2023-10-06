@@ -11,33 +11,33 @@ setup() {
 }
 
 @test "root: installed /usr/bin/rpm" {
-    run root.sh '/src/cnf-rs' 'rpm'
+    run root.sh '/usr/bin/cnf' 'rpm'
     assert_output "Absolute path to 'rpm' is '/usr/bin/rpm'. Please check your \$PATH variable to see whether it contains the mentioned path."
 }
 
 @test "root: installed /usr/sbin/sysctl" {
-    run root.sh '/src/cnf-rs' 'sysctl'
+    run root.sh '/usr/bin/cnf' 'sysctl'
     assert_output "Absolute path to 'sysctl' is '/usr/sbin/sysctl', so running it may require superuser privileges (eg. root)."
 }
 
 
 @test "root: not installed single package" {
-    run root.sh '/src/cnf-rs' 'make'
+    run root.sh '/usr/bin/cnf' 'make'
     assert_output --partial "The program 'make' can be found in the following package:"
 }
 
 @test "root: not installed more packages" {
-    run root.sh '/src/cnf-rs' 'cmake'
+    run root.sh '/usr/bin/cnf' 'cmake'
     assert_output --partial "The program 'cmake' can be found in following packages:"
 }
 
 @test "root: bash handler: not installed more packages" {
-    run root.sh '/src/cnf-rs' 'cmake'
-    root.sh bash -c "source /src/cnf-rs.bash; cmake"
+    run root.sh '/usr/bin/cnf' 'cmake'
+    root.sh bash -c "source /etc/bash_command_not_found; cmake"
     assert_output --partial "The program 'cmake' can be found in following packages:"
 }
 
 @test "nonroot: not installed more packages" {
-    run nonroot.sh '/src/cnf-rs' 'cmake'
+    run nonroot.sh '/usr/bin/cnf' 'cmake'
     assert_output --partial "The program 'cmake' can be found in following packages:"
 }
