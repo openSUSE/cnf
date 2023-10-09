@@ -5,7 +5,9 @@ ADD passwd /etc/passwd
 ADD group /etc/group
 ADD --chown=65532:65532 nonroot /home/nonroot/whoami
 
-# Needed for /var/cache/zypp/solv to appear
-RUN zypper refresh --build-only
+RUN zypper refresh
+# minimize number of packages installed
+RUN zypper --non-interactive addlock busybox dbus diffutils pam-config perl-base pkgconf-m4 systemd groff man
+RUN zypper --non-interactive install --no-recommends zsh fish
 
 WORKDIR /src
