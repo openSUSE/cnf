@@ -29,7 +29,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       -
-        name: Build cnf-rs
+        name: Build cnf
         run: cargo build
 
       - uses: docker/setup-buildx-action@v2
@@ -44,7 +44,7 @@ jobs:
           file: test/Dockerfile
           load: true
           push: false
-          tags: local/cnf-rs-ci:latest
+          tags: local/cnf-ci:latest
 
       -
         name: Integration test

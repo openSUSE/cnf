@@ -1,5 +1,5 @@
 [package]
-name = "cnf-rs"
+name = "cnf"
 version = "0.5.2"
 edition = "2021"
 

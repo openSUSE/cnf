@@ -79,8 +79,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "cnf-rs"
-version = "0.3.0"
+name = "cnf"
+version = "0.5.2"
 dependencies = [
  "bindgen",
  "glob",

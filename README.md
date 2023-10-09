@@ -8,7 +8,7 @@ https://github.com/openSUSE/scout/blob/master/handlers/bin/command-not-found) fo
 
 ## Differences
 
-|   | cnf-rs  | cnf   |
+|   | cnf  | scout(cnf)   |
 |---|---------|-------|
 |Uses | `libsolv` | `libsov` |
 |Written in| Rust | shell, two packages in Python |
@@ -30,7 +30,7 @@ cargo build
 To query not installed programs
 
 ```
-./target/debug/cnf-rs cmake
+./target/debug/cnf cmake
 
 The program 'cmake' can be found in following packages:
   * cmake-full [ path: /usr/bin/cmake, repository: zypp (repo-oss) ]
@@ -43,14 +43,14 @@ Try installing with:
 To query installed programs in `/usr/sbin`
 
 ```
-./target/debug/cnf-rs chcpu
+./target/debug/cnf chcpu
 Absolute path to 'chcpu' is '/usr/sbin/chcpu', so running it may require superuser privileges (eg. root).
 ```
 
 To query installed programs in `/usr/bin`
 
 ```
-./target/debug/cnf-rs vim  
+./target/debug/cnf vim  
 Absolute path to 'vim' is '/usr/bin/vim'. Please check your $PATH variable to see whether it contains the mentioned path
 ```
 
@@ -58,7 +58,7 @@ Absolute path to 'vim' is '/usr/bin/vim'. Please check your $PATH variable to se
 
 ```sh
 > source command_not_found_bash
-> export COMMAND_NOT_FOUND_BIN=./target/debug/cnf-rs
+> export COMMAND_NOT_FOUND_BIN=./target/debug/cnf
 > cmake
 
 The program 'cmake' can be found in following packages:
@@ -71,9 +71,9 @@ Try installing with:
 
 ## Integration tests
 
-Integration tests runs inside docker image tagged `local/cnf-rs-ci`. It is
+Integration tests runs inside docker image tagged `local/cnf-ci`. It is
 built as a part of Github Action and can be built locally as `cd test; docker
-build -t local/cnf-rs-ci:latest .`
+build -t local/cnf-ci:latest .`
 
 The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core)
 and in order to make it run, one needs to initialize the git submodules (`git
@@ -94,12 +94,12 @@ test.bats
 ```
 
 Every test can be executed on a command line. The `root.sh` wrapper mounts the
-binary to `/src/cnf-rs` and mounts the `libsolv.so.1` if running on ubuntu-amd64
+binary to `/usr/bin/cnf` and mounts the `libsolv.so.1` if running on ubuntu-amd64
 or if shared library is in `test/libsolv.so.1`. This is done in order to solve
 the packaging difference of a libsolv between openSUSE and Ubuntu.
 
 ```sh
-$ ./root.sh /src/cnf-rs rpm
+$ ./root.sh /usr/bin/cnf rpm
 Absolute path to 'rpm' is '/usr/bin/rpm'. Please check your $PATH variable to see whether it contains the mentioned path
 ```
 
