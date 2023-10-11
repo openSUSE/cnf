@@ -54,7 +54,7 @@ fn main() {
 }
 
 fn search_solv(term: &str) -> Result<(), ErrorKind> {
-    let repos = load_repos().map_err(kindify)?;
+    let repos = load_repos()?;
 
     let pool = SPool::new(&repos).map_err(kindify)?;
     let results = pool.search(&term);
@@ -107,18 +107,18 @@ struct SolvInput {
     path: PathBuf,
 }
 
-fn load_repos() -> Result<Vec<SolvInput>, String> {
+fn load_repos() -> Result<Vec<SolvInput>, ErrorKind<'static>> {
     let mut repos: Vec<SolvInput> = Vec::new();
-    for repo in glob::glob(REPO_GLOB).map_err(stringify)? {
-        let repo = repo.map_err(stringify)?;
+    for repo in glob::glob(REPO_GLOB)? {
+        let repo = repo?;
 
         let info = ini::repo_enabled(&repo)?;
         if info.enabled {
             let solv_glob = format!("/var/cache/zypp/solv/{}/solv", info.name.replace("/", "_"));
-            for path in glob::glob(&solv_glob).map_err(stringify)? {
+            for path in glob::glob(&solv_glob)? {
                 let i = SolvInput {
                     name: info.name.clone(),
-                    path: path.map_err(stringify)?,
+                    path: path?,
                 };
                 repos.push(i);
             }
@@ -238,16 +238,12 @@ unsafe extern "C" fn callback(
     0
 }
 
-fn stringify<T>(e: T) -> String
-where
-    T: std::fmt::Display,
-{
-    return format!("{}", e);
-}
-
 // ErrorKind encodes all errors which can happen in command not found handler
 enum ErrorKind<'a> {
     CommandNotFound(&'a str),
+    PatternError(glob::PatternError),
+    GlobError(glob::GlobError),
+    IOError(std::io::Error),
     String(String),
 }
 
@@ -256,9 +252,36 @@ fn print_error<'a>(err: &'a ErrorKind) {
         ErrorKind::CommandNotFound(term) => {
             println!(" {}: {}", term, tr!("command not found"));
         }
+        ErrorKind::PatternError(err) => {
+            println!("{}", err)
+        }
+        ErrorKind::GlobError(err) => {
+            println!("{}", err)
+        }
+        ErrorKind::IOError(err) => {
+            println!("{}", err)
+        }
         ErrorKind::String(msg) => {
             println!("{}", msg);
         }
+    }
+}
+
+impl From<glob::PatternError> for ErrorKind<'_> {
+    fn from(value: glob::PatternError) -> Self {
+        return ErrorKind::PatternError(value);
+    }
+}
+
+impl From<glob::GlobError> for ErrorKind<'_> {
+    fn from(value: glob::GlobError) -> Self {
+        return ErrorKind::GlobError(value);
+    }
+}
+
+impl From<std::io::Error> for ErrorKind<'_> {
+    fn from(value: std::io::Error) -> Self {
+        return ErrorKind::IOError(value);
     }
 }
 
