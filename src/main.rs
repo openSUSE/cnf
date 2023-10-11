@@ -45,22 +45,22 @@ fn main() {
     }
 
     match search_solv(&term) {
-        Err(msg) => {
-            println!("{}", msg);
+        Err(err) => {
+            print_error(&err);
             exit(127);
         }
         _ => {}
     }
 }
 
-fn search_solv(term: &str) -> Result<(), String> {
-    let repos = load_repos()?;
+fn search_solv(term: &str) -> Result<(), ErrorKind> {
+    let repos = load_repos().map_err(kindify)?;
 
-    let pool = SPool::new(&repos)?;
+    let pool = SPool::new(&repos).map_err(kindify)?;
     let results = pool.search(&term);
 
     if results.len() == 0 {
-        return Err(format!(" {}: {}", term, tr!("command not found")));
+        return Err(ErrorKind::CommandNotFound(term));
     }
 
     let suggested_package = if results.len() == 1 {
@@ -243,4 +243,26 @@ where
     T: std::fmt::Display,
 {
     return format!("{}", e);
+}
+
+// ErrorKind encodes all errors which can happen in command not found handler
+enum ErrorKind<'a> {
+    CommandNotFound(&'a str),
+    String(String),
+}
+
+fn print_error<'a>(err: &'a ErrorKind) {
+    match err {
+        ErrorKind::CommandNotFound(term) => {
+            println!(" {}: {}", term, tr!("command not found"));
+        }
+        ErrorKind::String(msg) => {
+            println!("{}", msg);
+        }
+    }
+}
+
+//TODO: to be removed once all errors will get converted to ErrorKind enum
+fn kindify(s: String) -> ErrorKind<'static> {
+    return ErrorKind::String(s);
 }

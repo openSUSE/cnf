@@ -22,6 +22,10 @@ setup() {
     assert_output --partial "Absolute path to 'sysctl' is '/usr/sbin/sysctl', so running it may require superuser privileges (eg. root)."
 }
 
+@test "root: not installed xnake" {
+    run -127 root.sh '/usr/bin/cnf' 'xnake'
+    assert_output --partial " xnake: command not found"
+}
 
 @test "root: not installed make" {
     run root.sh '/usr/bin/cnf' 'make'
