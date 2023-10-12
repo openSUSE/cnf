@@ -9,8 +9,8 @@ pub struct Repo {
     pub name: String,
 }
 
-pub fn repo_enabled(path: &PathBuf) -> Result<Repo, String> {
-    let lines = read_lines(&path).map_err(stringify)?;
+pub fn repo_enabled(path: &PathBuf) -> Result<Repo, std::io::Error> {
+    let lines = read_lines(&path)?;
     let mut name = String::from("N/A");
 
     for line in lines {
@@ -42,11 +42,4 @@ where
 {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
-}
-
-fn stringify<T>(e: T) -> String
-where
-    T: std::fmt::Display,
-{
-    return format!("{}", e);
 }
