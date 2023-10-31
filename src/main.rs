@@ -2,6 +2,7 @@ extern crate glob;
 #[macro_use]
 extern crate tr;
 
+use std::fmt;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::exit;
@@ -42,14 +43,14 @@ fn main() {
 
     match search_solv(&term) {
         Err(err) => {
-            print_error(&err);
+            println!("{}", err);
             exit(127);
         }
         _ => {}
     }
 }
 
-fn search_solv(term: &str) -> Result<(), ErrorKind> {
+fn search_solv<'a>(term: &'a str) -> Result<(), ErrorKind<'a>> {
     let repos = load_repos()?;
 
     let pool = pool::SPool::new(&repos)?;
@@ -127,22 +128,24 @@ enum ErrorKind<'a> {
     String(String),
 }
 
-fn print_error<'a>(err: &'a ErrorKind) {
-    match err {
-        ErrorKind::CommandNotFound(term) => {
-            println!(" {}: {}", term, tr!("command not found"));
-        }
-        ErrorKind::PatternError(err) => {
-            println!("{}", err)
-        }
-        ErrorKind::GlobError(err) => {
-            println!("{}", err)
-        }
-        ErrorKind::IOError(err) => {
-            println!("{}", err)
-        }
-        ErrorKind::String(msg) => {
-            println!("{}", msg);
+impl<'a> fmt::Display for ErrorKind<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ErrorKind::CommandNotFound(term) => {
+                write!(f, " {}: {}", term, tr!("command not found"))
+            }
+            ErrorKind::PatternError(err) => {
+                write!(f, "{}", err)
+            }
+            ErrorKind::GlobError(err) => {
+                write!(f, "{}", err)
+            }
+            ErrorKind::IOError(err) => {
+                write!(f, "{}", err)
+            }
+            ErrorKind::String(msg) => {
+                write!(f, "{}", msg)
+            }
         }
     }
 }
