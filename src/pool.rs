@@ -7,10 +7,11 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 extern crate libc;
 
-use crate::SolvInput;
+use crate::{ErrorKind, SolvInput};
 use std::env;
 use std::ffi::CStr;
 use std::ffi::CString;
+use std::io;
 
 pub struct SPool {
     pool: *mut Pool,
@@ -23,36 +24,37 @@ pub struct SearchResult {
 }
 
 impl SPool {
-    pub fn new(repos: &Vec<SolvInput>) -> Result<SPool, String> {
+    pub fn new<'a>(repos: &'a [SolvInput]) -> Result<SPool, ErrorKind<'a>> {
         let pool: *mut Pool = unsafe {
             let ptr = pool_create();
             if ptr.is_null() {
-                return Err(String::from("pool_create returned NULL"));
+                return Err(ErrorKind::IsNULL("pool_create"));
             }
             ptr
         };
 
         for input in repos {
             let cname = CString::new(input.name.to_string()).map_err(
-                |_e: std::ffi::NulError| -> String { String::from("input.name is null") },
+                |_e: std::ffi::NulError| -> ErrorKind { ErrorKind::IsNULL("input.name") },
             )?;
             let csolv = CString::new(input.path.display().to_string()).map_err(
-                |_e: std::ffi::NulError| -> String { String::from("input.path is null") },
+                |_e: std::ffi::NulError| -> ErrorKind { ErrorKind::IsNULL("input.path") },
             )?;
             let repo: *mut Repo = unsafe { repo_create(pool, cname.into_raw()) };
             if repo.is_null() {
-                return Err(format!("pool_create({}) returned NULL", input.name));
+                return Err(ErrorKind::IsNULLNamed("pool_create", &input.name));
             }
 
             unsafe {
-                let fp = fopen(csolv.into_raw(), CString::new("r").unwrap().into_raw());
+                const rdonly: std::os::raw::c_char = 114; // ASCII r
+                let fp = fopen(csolv.into_raw(), &rdonly);
                 if fp.is_null() {
-                    return Err(format!("can't open {}", input.path.display()));
+                    return Err(ErrorKind::IOError(io::Error::last_os_error()));
                 }
                 let r = repo_add_solv(repo, fp, 0);
                 fclose(fp);
                 if r != 0 {
-                    return Err(format!("repo_add_solv failed on {}", input.path.display()));
+                    return Err(ErrorKind::RepoAddSolv(&input.path));
                 }
             }
         }
@@ -60,21 +62,31 @@ impl SPool {
         Ok(SPool { pool })
     }
 
-    pub fn search(&self, term: &str) -> Vec<SearchResult> {
-        let cterm = CString::new(term).unwrap();
-        // https://stackoverflow.com/questions/38995701/how-do-i-pass-a-closure-through-raw-pointers-as-an-argument-to-a-c-function/38997480#38997480
+    pub fn search(&self, term: &str) -> Result<Vec<SearchResult>, ErrorKind<'static>> {
+        let cterm = CString::new(term).map_err(|_e: std::ffi::NulError| -> ErrorKind {
+            ErrorKind::IsNULL("Ctring::New(term)")
+        })?;
         let mut results: Vec<SearchResult> = Vec::new();
-        let mut append = |repo: String, package: String, path: String| {
-            if path != "/usr/bin" && path != "/usr/sbin" {
-                return;
+        let mut error: Option<ErrorKind> = None;
+        let mut append = |result: Result<(String, String, String), ErrorKind<'static>>| match result
+        {
+            Err(err) => error = Some(err),
+            Ok(result) => {
+                let (repo, package, path) = result;
+                if path != "/usr/bin" && path != "/usr/sbin" {
+                    return;
+                }
+                results.push(SearchResult {
+                    Repo: repo,
+                    Package: package,
+                    Path: path,
+                });
             }
-            results.push(SearchResult {
-                Repo: repo.clone(),
-                Package: package,
-                Path: path,
-            });
         };
-        let mut trait_obj: &mut dyn FnMut(String, String, String) = &mut append;
+
+        // https://stackoverflow.com/questions/38995701/how-do-i-pass-a-closure-through-raw-pointers-as-an-argument-to-a-c-function/38997480#38997480
+        let mut trait_obj: &mut dyn FnMut(Result<(String, String, String), ErrorKind<'static>>) =
+            &mut append;
         let trait_obj_ref = &mut trait_obj;
 
         unsafe {
@@ -88,7 +100,11 @@ impl SPool {
                 trait_obj_ref as *mut _ as *mut libc::c_void,
             );
         }
-        results
+
+        match error {
+            Some(err) => return Err(err),
+            None => return Ok(results),
+        }
     }
 }
 
@@ -105,20 +121,43 @@ unsafe extern "C" fn callback(
     _key: *mut s_Repokey,
     kv: *mut s_KeyValue,
 ) -> i32 {
-    // TODO: handle NULL and error here gracefully
-    let repo = CStr::from_ptr((*(*s).repo).name).to_str().unwrap();
-    let name = CStr::from_ptr(solvable_lookup_str(s, solv_knownid_SOLVABLE_NAME as i32))
-        .to_str()
-        .unwrap();
-    let path = CStr::from_ptr(repodata_dir2str(
-        data,
-        (*kv).id,
-        0 as *const std::os::raw::c_char,
-    ))
-    .to_str()
-    .unwrap();
+    // code does not assert callback data, those are a responsibility of a libsolv/caller
 
-    let append: &mut &mut dyn FnMut(String, String, String) = &mut *(cbdata as *mut _);
-    append(String::from(repo), String::from(name), String::from(path));
-    0
+    let append: &mut &mut dyn FnMut(Result<(String, String, String), ErrorKind<'static>>) =
+        &mut *(cbdata as *mut _);
+
+    let result: Result<(String, String, String), ErrorKind<'static>> =
+        CStr::from_ptr((*(*s).repo).name)
+            .to_str()
+            .map_err(|err: std::str::Utf8Error| -> ErrorKind { ErrorKind::String(err.to_string()) })
+            .and_then(|repo: &str| {
+                CStr::from_ptr(solvable_lookup_str(s, solv_knownid_SOLVABLE_NAME as i32))
+                    .to_str()
+                    .map_err(|err: std::str::Utf8Error| -> ErrorKind {
+                        ErrorKind::String(err.to_string())
+                    })
+                    .map(|name| (repo, name))
+            })
+            .and_then(|(repo, name)| {
+                CStr::from_ptr(repodata_dir2str(
+                    data,
+                    (*kv).id,
+                    0 as *const std::os::raw::c_char,
+                ))
+                .to_str()
+                .map_err(|err: std::str::Utf8Error| -> ErrorKind {
+                    ErrorKind::String(err.to_string())
+                })
+                .map(|path| (repo, name, path))
+            })
+            .and_then(|(repo, name, path)| {
+                Ok((String::from(repo), String::from(name), String::from(path)))
+            });
+
+    let ret = match result {
+        Err(_) => -1,
+        _ => 0,
+    };
+    append(result);
+    ret
 }
