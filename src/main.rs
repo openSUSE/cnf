@@ -19,6 +19,19 @@ pub struct SolvInput {
     path: PathBuf,
 }
 
+// ErrorKind encodes all errors whose can happen in command not found handler
+#[derive(Debug)]
+pub enum ErrorKind<'a> {
+    CommandNotFound(&'a str),
+    PatternError(glob::PatternError),
+    GlobError(glob::GlobError),
+    IOError(std::io::Error),
+    IsNULL(&'static str),
+    IsNULLNamed(&'static str, &'a str),
+    RepoAddSolv(&'a PathBuf),
+    String(String),
+}
+
 fn main() {
     // use the tr_init macro to tell gettext where to look for translations
     tr_init!("/usr/share/locale");
@@ -41,20 +54,26 @@ fn main() {
         exit(0);
     }
 
-    match search_solv(&term) {
+    let repos = match load_repos() {
+        Err(err) => {
+            println!("{}", err);
+            exit(127);
+        }
+        Ok(repos) => repos,
+    };
+
+    match search_in_repos(&term, &repos) {
         Err(err) => {
             println!("{}", err);
             exit(127);
         }
         _ => {}
-    }
+    };
 }
 
-fn search_solv<'a>(term: &'a str) -> Result<(), ErrorKind<'a>> {
-    let repos = load_repos()?;
-
-    let pool = pool::SPool::new(&repos)?;
-    let results = pool.search(&term);
+fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), ErrorKind<'a>> {
+    let pool = pool::SPool::new(repos)?;
+    let results = pool.search(&term)?;
 
     if results.len() == 0 {
         return Err(ErrorKind::CommandNotFound(term));
@@ -99,7 +118,7 @@ fn search_solv<'a>(term: &'a str) -> Result<(), ErrorKind<'a>> {
     Ok(())
 }
 
-fn load_repos() -> Result<Vec<SolvInput>, ErrorKind<'static>> {
+fn load_repos<'a>() -> Result<Vec<SolvInput>, ErrorKind<'a>> {
     let mut repos: Vec<SolvInput> = Vec::new();
     for repo in glob::glob(REPO_GLOB)? {
         let repo = repo?;
@@ -119,15 +138,6 @@ fn load_repos() -> Result<Vec<SolvInput>, ErrorKind<'static>> {
     Ok(repos)
 }
 
-// ErrorKind encodes all errors which can happen in command not found handler
-enum ErrorKind<'a> {
-    CommandNotFound(&'a str),
-    PatternError(glob::PatternError),
-    GlobError(glob::GlobError),
-    IOError(std::io::Error),
-    String(String),
-}
-
 impl<'a> fmt::Display for ErrorKind<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
@@ -142,6 +152,15 @@ impl<'a> fmt::Display for ErrorKind<'a> {
             }
             ErrorKind::IOError(err) => {
                 write!(f, "{}", err)
+            }
+            ErrorKind::IsNULL(label) => {
+                write!(f, "{} is NULL", label)
+            }
+            ErrorKind::IsNULLNamed(label, name) => {
+                write!(f, "{} {} is NULL", label, name)
+            }
+            ErrorKind::RepoAddSolv(file) => {
+                write!(f, "repo_add_solv failed on {}", file.display())
             }
             ErrorKind::String(msg) => {
                 write!(f, "{}", msg)
@@ -165,12 +184,5 @@ impl From<glob::GlobError> for ErrorKind<'_> {
 impl From<std::io::Error> for ErrorKind<'_> {
     fn from(value: std::io::Error) -> Self {
         return ErrorKind::IOError(value);
-    }
-}
-
-// TODO: drop this From implementation, the proper errors from src/pool.rs may be used instead
-impl From<String> for ErrorKind<'_> {
-    fn from(value: String) -> Self {
-        return ErrorKind::String(value);
     }
 }
