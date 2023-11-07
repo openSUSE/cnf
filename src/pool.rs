@@ -2,6 +2,7 @@
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
 #![allow(dead_code)]
+#![allow(clippy::upper_case_acronyms)]
 
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
@@ -149,7 +150,8 @@ unsafe extern "C" fn callback(
                     ErrorKind::String(err.to_string())
                 })
                 .map(|path| (repo, name, path))
-            }).map(|(repo, name, path)| (String::from(repo), String::from(name), String::from(path)));
+            })
+            .map(|(repo, name, path)| (String::from(repo), String::from(name), String::from(path)));
 
     let ret = match result {
         Err(_) => -1,
