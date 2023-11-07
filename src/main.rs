@@ -62,7 +62,7 @@ fn main() {
         Ok(repos) => repos,
     };
 
-    match search_in_repos(&term, &repos) {
+    match search_in_repos(term, &repos) {
         Err(err) => {
             println!("{}", err);
             exit(127);
@@ -73,19 +73,19 @@ fn main() {
 
 fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), ErrorKind<'a>> {
     let pool = pool::SPool::new(repos)?;
-    let results = pool.search(&term)?;
+    let results = pool.search(term)?;
 
-    if results.len() == 0 {
+    if results.is_empty() {
         return Err(ErrorKind::CommandNotFound(term));
     }
 
     let suggested_package = if results.len() == 1 {
         results[0].Package.clone()
     } else {
-        String::from(tr!("<selected_package>"))
+        tr!("<selected_package>")
     };
 
-    println!("");
+    println!();
     println!(
         "{}",
         tr!(
@@ -108,7 +108,7 @@ fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), Erro
         );
     }
 
-    println!("");
+    println!();
     print!(
         "{}",
         tr!("Try installing with:
@@ -125,7 +125,7 @@ fn load_repos<'a>() -> Result<Vec<SolvInput>, ErrorKind<'a>> {
 
         let info = ini::repo_enabled(&repo)?;
         if info.enabled {
-            let solv_glob = format!("/var/cache/zypp/solv/{}/solv", info.name.replace("/", "_"));
+            let solv_glob = format!("/var/cache/zypp/solv/{}/solv", info.name.replace('/', "_"));
             for path in glob::glob(&solv_glob)? {
                 let i = SolvInput {
                     name: info.name.clone(),
