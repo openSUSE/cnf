@@ -24,7 +24,7 @@ pub struct SearchResult {
 }
 
 impl SPool {
-    pub fn new<'a>(repos: &'a [SolvInput]) -> Result<SPool, ErrorKind<'a>> {
+    pub fn new(repos: &[SolvInput]) -> Result<SPool, ErrorKind<'_>> {
         let pool: *mut Pool = unsafe {
             let ptr = pool_create();
             if ptr.is_null() {
@@ -102,8 +102,8 @@ impl SPool {
         }
 
         match error {
-            Some(err) => return Err(err),
-            None => return Ok(results),
+            Some(err) => Err(err),
+            None => Ok(results),
         }
     }
 }
@@ -142,17 +142,14 @@ unsafe extern "C" fn callback(
                 CStr::from_ptr(repodata_dir2str(
                     data,
                     (*kv).id,
-                    0 as *const std::os::raw::c_char,
+                    std::ptr::null::<std::os::raw::c_char>(),
                 ))
                 .to_str()
                 .map_err(|err: std::str::Utf8Error| -> ErrorKind {
                     ErrorKind::String(err.to_string())
                 })
                 .map(|path| (repo, name, path))
-            })
-            .and_then(|(repo, name, path)| {
-                Ok((String::from(repo), String::from(name), String::from(path)))
-            });
+            }).map(|(repo, name, path)| (String::from(repo), String::from(name), String::from(path)));
 
     let ret = match result {
         Err(_) => -1,
