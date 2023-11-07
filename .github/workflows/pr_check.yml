@@ -32,6 +32,12 @@ jobs:
         name: Build cnf
         run: cargo build
 
+      -
+        name: clippy
+        run: cargo clippy --all-targets --all-features
+        env:
+          RUSTFLAGS: "-Dwarnings"
+
       - uses: docker/setup-buildx-action@v2
 
       -
