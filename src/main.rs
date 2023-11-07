@@ -62,13 +62,10 @@ fn main() {
         Ok(repos) => repos,
     };
 
-    match search_in_repos(term, &repos) {
-        Err(err) => {
-            println!("{}", err);
-            exit(127);
-        }
-        _ => {}
-    };
+    if let Err(err) = search_in_repos(term, &repos) {
+        println!("{}", err);
+        exit(127);
+    }
 }
 
 fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), ErrorKind<'a>> {

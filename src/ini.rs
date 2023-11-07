@@ -13,17 +13,15 @@ pub fn repo_enabled(path: &PathBuf) -> Result<Repo, std::io::Error> {
     let lines = read_lines(path)?;
     let mut name = String::from("N/A");
 
-    for line in lines {
-        if let Ok(ip) = line {
-            if ip.starts_with('[') && ip.ends_with(']') {
-                name = ip.replace(&['[', ']'][..], "");
-            }
-            if ip.starts_with("enabled") && ip.ends_with('1') {
-                return Ok(Repo {
-                    enabled: true,
-                    name,
-                });
-            }
+    for line in lines.flatten() {
+        if line.starts_with('[') && line.ends_with(']') {
+            name = line.replace(&['[', ']'][..], "");
+        }
+        if line.starts_with("enabled") && line.ends_with('1') {
+            return Ok(Repo {
+                enabled: true,
+                name,
+            });
         }
     }
     Ok(Repo {
