@@ -103,3 +103,7 @@ $ ./root.sh /usr/bin/cnf rpm
 Absolute path to 'rpm' is '/usr/bin/rpm'. Please check your $PATH variable to see whether it contains the mentioned path
 ```
 
+## Powershell users
+
+As cnf does not integrate with a power shell by default, please follow issue comment https://github.com/openSUSE/cnf/issues/8#issuecomment-1854638267
+to learn how to configure your system properly.
