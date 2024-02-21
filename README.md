@@ -25,7 +25,7 @@ cargo build
 
 ## **Direct usage**
 
-To query not installed programs
+To query not installed programs:
 
 ```.sh
 ./target/debug/cnf cmake
