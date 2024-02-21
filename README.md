@@ -9,7 +9,7 @@
 |                                    | **`cnf`**         | **`scout(cnf)`**              |
 |------------------------------------|-------------------|-------------------------------|
 | **Uses**                           | `libsolv`         | `libsolv`                     |
-| **Written in**                     | Rust              | shell, two packages in Python |
+| **Written in**                     | Rust              | Shell, two packages in Python |
 | **Detect enabled/disabled repos?** | Yes               | Yes                           |
 | **Tries to refresh repos**         | No                | Yes                           |
 | **`bash` integration**             | Yes               | Yes                           |
