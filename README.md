@@ -80,7 +80,7 @@ Integration tests runs inside docker image tagged `local/cnf-ci`. It is built as
 The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) and in order to make it run, one needs to initialize the git submodules (`git submodule init`). Then tests can be executed using a following command
 
 ```.sh
-$ ./test/bats/bin/bats ./test/
+./test/bats/bin/bats ./test/
 ```
 > ```.log
 > test.bats
