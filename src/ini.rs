@@ -13,7 +13,7 @@ pub fn repo_enabled(path: &PathBuf) -> Result<Repo, std::io::Error> {
     let lines = read_lines(path)?;
     let mut name = String::from("N/A");
 
-    for line in lines.flatten() {
+    for line in lines.map_while(Result::ok) {
         if line.starts_with('[') && line.ends_with(']') {
             name = line.replace(&['[', ']'][..], "");
         }
