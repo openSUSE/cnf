@@ -112,6 +112,11 @@ As `cnf` does not integrate with PowerShell by default, please read the issue co
 Here's an example `command_not_found.ps1` file that somewhat emulates what `command_not_found.bash` does:
 
 ```.PS1
+#!/usr/bin/env -S pwsh
+
+#Requires -PSEdition Core
+#Requires -Version 7
+
 $Env:TEXTDOMAINDIR = '/usr/share/locale'
 $Env:TEXTDOMAIN = 'cnf'
 
