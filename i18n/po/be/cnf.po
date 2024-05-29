@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cnf 0.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-05 12:05+0200\n"
+"POT-Creation-Date: 2024-05-29 11:17+0000\n"
 "PO-Revision-Date: 2006-01-04 08:58+0100\n"
 "Last-Translator: Alexander Nyakhaychyk <nyakhaychyk@gmail.com>\n"
 "Language-Team: Belarusian <i18n@suse.de>\n"
@@ -19,39 +19,39 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: src/main.rs:37
+#: src/main.rs:47
 msgid ""
 "Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
 msgstr ""
 
-#: src/main.rs:43
+#: src/main.rs:53
 msgid ""
 "Absolute path to '{}' is '{}', so running it may require superuser "
 "privileges (eg. root)."
 msgstr ""
 
-#: src/main.rs:63
-msgid "command not found"
-msgstr "    <каманда> [опцыі]"
-
-#: src/main.rs:69
+#: src/main.rs:82
 msgid "<selected_package>"
 msgstr ""
 
-#: src/main.rs:76
+#: src/main.rs:89
 msgid "The program '{}' can be found in the following package:"
 msgid_plural "The program '{}' can be found in following packages:"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: src/main.rs:86
+#: src/main.rs:99
 msgid "  * {} [ path: {}/{}, repository: {} ]"
 msgstr ""
 
-#: src/main.rs:98
+#: src/main.rs:111
 msgid ""
 "Try installing with:\n"
 "   "
 msgstr ""
+
+#: src/main.rs:142
+msgid "command not found"
+msgstr "    <каманда> [опцыі]"

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cnf 0.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-05 16:11+0200\n"
+"POT-Creation-Date: 2024-05-29 11:17+0000\n"
 "PO-Revision-Date: 2018-10-05 13:11+0000\n"
 "Last-Translator: Yi-Jyun Pan <pan93412@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) <https://l10n.opensuse.org/projects/scout/"
@@ -21,43 +21,42 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 2.18\n"
 
-#: src/main.rs:37
+#: src/main.rs:47
 msgid ""
 "Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
 msgstr ""
-"指向 '{}' 的絕對路徑為 '{}'. 請檢查您的 $PATH 變數看是否"
-"包含了所提到的路徑。"
+"指向 '{}' 的絕對路徑為 '{}'. 請檢查您的 $PATH 變數看是否包含了所提到的路徑。"
 
-#: src/main.rs:43
+#: src/main.rs:53
 msgid ""
 "Absolute path to '{}' is '{}', so running it may require superuser "
 "privileges (eg. root)."
 msgstr ""
-"指向 '{}' 的絕對路徑為 '{}', 因此執行它可能需要超級使用"
-"者的權限 (例如. root)。"
+"指向 '{}' 的絕對路徑為 '{}', 因此執行它可能需要超級使用者的權限 (例如. "
+"root)。"
 
-#: src/main.rs:63
-msgid "command not found"
-msgstr "找不到指令"
-
-#: src/main.rs:69
+#: src/main.rs:82
 msgid "<selected_package>"
 msgstr ""
 
-#: src/main.rs:76
+#: src/main.rs:89
 msgid "The program '{}' can be found in the following package:"
 msgid_plural "The program '{}' can be found in following packages:"
 msgstr[0] "程式 '{}' 可以在下列套件中找到："
 
-#: src/main.rs:86
+#: src/main.rs:99
 msgid "  * {} [ path: {}/{}, repository: {} ]"
 msgstr "  * {} [ 路徑: {}/{}, 套件庫: {} ]"
 
-#: src/main.rs:98
+#: src/main.rs:111
 msgid ""
 "Try installing with:\n"
 "   "
 msgstr ""
 "試著使用下面指令安裝：\n"
 "   "
+
+#: src/main.rs:142
+msgid "command not found"
+msgstr "找不到指令"
