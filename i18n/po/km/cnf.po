@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cnf 0.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-05 12:05+0200\n"
+"POT-Creation-Date: 2024-05-29 11:17+0000\n"
 "PO-Revision-Date: 2010-06-07 09:36+0700\n"
 "Last-Translator: Khoem Sokhem <khoemsokhem@khmeros.info>\n"
 "Language-Team: Khmer <support@khmeros.info>\n"
@@ -20,43 +20,43 @@ msgstr ""
 "X-Generator: KBabel 1.11.4\n"
 "X-Language: km-KH\n"
 
-#: src/main.rs:37
+#: src/main.rs:47
 msgid ""
 "Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
 msgstr ""
-"ផ្លូវ​ពេញលេញ​ទៅកាន់ '{}' គឺជា '{}' ។ សូម​ពិនិត្យមើល​អថេរ​ $PATH របស់​"
-"អ្នក ដើម្បី​មើល​ថា​ តើ​វា​មាន​ផ្លូវ​ដូច​ដែល​បាន​និយាយ​ដែរឬទេ ។"
+"ផ្លូវ​ពេញលេញ​ទៅកាន់ '{}' គឺជា '{}' ។ សូម​ពិនិត្យមើល​អថេរ​ $PATH របស់​អ្នក ដើម្បី​មើល​ថា​ តើ​វា​មាន​"
+"ផ្លូវ​ដូច​ដែល​បាន​និយាយ​ដែរឬទេ ។"
 
-#: src/main.rs:43
+#: src/main.rs:53
 msgid ""
 "Absolute path to '{}' is '{}', so running it may require superuser "
 "privileges (eg. root)."
 msgstr ""
-"ផ្លូវ​ពេញលេញ​ទៅកាន់​ '{}' គឺជា '{}' ដូច្នេះ ការ​ដំណើរការ​វា​ អាច​នឹង​"
-"ទាមទារ​សិទ្ធិ​ជា​អ្នកប្រើ​ជាន់ខ្ពស់ (ឧ root) ។"
+"ផ្លូវ​ពេញលេញ​ទៅកាន់​ '{}' គឺជា '{}' ដូច្នេះ ការ​ដំណើរការ​វា​ អាច​នឹង​ទាមទារ​សិទ្ធិ​ជា​អ្នកប្រើ​ជាន់ខ្ពស់ "
+"(ឧ root) ។"
 
-#: src/main.rs:63
-msgid "command not found"
-msgstr "រក​មិន​ឃើញ​ពាក្យ​បញ្ជា"
-
-#: src/main.rs:69
+#: src/main.rs:82
 msgid "<selected_package>"
 msgstr ""
 
-#: src/main.rs:76
+#: src/main.rs:89
 msgid "The program '{}' can be found in the following package:"
 msgid_plural "The program '{}' can be found in following packages:"
 msgstr[0] "កម្មវិធី '{}' អាច​រកឃើញ​នៅ​ក្នុង​កញ្ចប់​ដូច​ខាងក្រោម ៖"
 
-#: src/main.rs:86
+#: src/main.rs:99
 msgid "  * {} [ path: {}/{}, repository: {} ]"
 msgstr "  * {} [ path: {}/{} ឃ្លាំង ៖ {} ]"
 
-#: src/main.rs:98
+#: src/main.rs:111
 msgid ""
 "Try installing with:\n"
 "   "
 msgstr ""
 "ព្យាយាម​ដំឡើង​ជា​មួយ ៖\n"
 "   "
+
+#: src/main.rs:142
+msgid "command not found"
+msgstr "រក​មិន​ឃើញ​ពាក្យ​បញ្ជា"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cnf 0.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-05 12:05+0200\n"
+"POT-Creation-Date: 2024-05-29 11:17+0000\n"
 "PO-Revision-Date: 2018-10-02 22:30+0000\n"
 "Last-Translator: Yasuhiko Kamata <belphegor@belbel.or.jp>\n"
 "Language-Team: Japanese <https://l10n.opensuse.org/projects/scout/command-"
@@ -19,43 +19,43 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 2.18\n"
 
-#: src/main.rs:37
+#: src/main.rs:47
 msgid ""
 "Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
 msgstr ""
-"絶対パス '{}' は '{}' を指しています。左記のパスがお使い"
-"の環境での $PATH 変数に含まれているかどうかご確認ください。"
+"絶対パス '{}' は '{}' を指しています。左記のパスがお使いの環境での $PATH 変数"
+"に含まれているかどうかご確認ください。"
 
-#: src/main.rs:43
+#: src/main.rs:53
 msgid ""
 "Absolute path to '{}' is '{}', so running it may require superuser "
 "privileges (eg. root)."
 msgstr ""
-"絶対パス '{}' は '{}' を指しています。そのため、このコマ"
-"ンドを実行するにはスーパーユーザ (root など) の権限が必要かもしれません。"
+"絶対パス '{}' は '{}' を指しています。そのため、このコマンドを実行するには"
+"スーパーユーザ (root など) の権限が必要かもしれません。"
 
-#: src/main.rs:63
-msgid "command not found"
-msgstr "コマンドが見つかりません"
-
-#: src/main.rs:69
+#: src/main.rs:82
 msgid "<selected_package>"
 msgstr "<選択済みパッケージ>"
 
-#: src/main.rs:76
+#: src/main.rs:89
 msgid "The program '{}' can be found in the following package:"
 msgid_plural "The program '{}' can be found in following packages:"
 msgstr[0] "プログラム '{}' は下記のパッケージに存在しています:"
 
-#: src/main.rs:86
+#: src/main.rs:99
 msgid "  * {} [ path: {}/{}, repository: {} ]"
 msgstr "  * {} [ パス: {}/{}, リポジトリ: {} ]"
 
-#: src/main.rs:98
+#: src/main.rs:111
 msgid ""
 "Try installing with:\n"
 "   "
 msgstr ""
 "下記を利用してインストールしてみてください:\n"
 "   "
+
+#: src/main.rs:142
+msgid "command not found"
+msgstr "コマンドが見つかりません"

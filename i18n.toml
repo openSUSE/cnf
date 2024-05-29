@@ -17,7 +17,6 @@ target_languages = [
     "de",
     "el",
     "en_GB",
-    "eo",
     "es",
     "et",
     "fa",

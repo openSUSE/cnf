@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: cnf 0.3.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-05 12:05+0200\n"
+"POT-Creation-Date: 2024-05-29 11:17+0000\n"
 "PO-Revision-Date: 2009-09-20 09:30+0200\n"
 "Last-Translator: Jean Cayron <jean.cayron@gmail.com>\n"
 "Language-Team: Walloon <linux-wa@walon.org>\n"
@@ -20,44 +20,44 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Lokalize 0.3\n"
 
-#: src/main.rs:37
+#: src/main.rs:47
 msgid ""
 "Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
 msgstr ""
-"Li tchmin absolou viè « {} » est « {} ». Verifyîz vosse "
-"variåve $PATH po vey s' il a ci la."
+"Li tchmin absolou viè « {} » est « {} ». Verifyîz vosse variåve $PATH po vey "
+"s' il a ci la."
 
-#: src/main.rs:43
+#: src/main.rs:53
 msgid ""
 "Absolute path to '{}' is '{}', so running it may require superuser "
 "privileges (eg. root)."
 msgstr ""
-"Li tchmin absolou viè « {} » est « {} », ça fwait k' i "
-"fåt motoit les droets di superuzeu (come root metans)."
+"Li tchmin absolou viè « {} » est « {} », ça fwait k' i fåt motoit les droets "
+"di superuzeu (come root metans)."
 
-#: src/main.rs:63
-msgid "command not found"
-msgstr "comande nén trovêye"
-
-#: src/main.rs:69
+#: src/main.rs:82
 msgid "<selected_package>"
 msgstr ""
 
-#: src/main.rs:76
+#: src/main.rs:89
 msgid "The program '{}' can be found in the following package:"
 msgid_plural "The program '{}' can be found in following packages:"
 msgstr[0] "Dji a trové li programe « {} » dins l' pacaedje shuvant :"
 msgstr[1] "Dji a trové li programe « {} » dins les pacaedjes shuvants :"
 
-#: src/main.rs:86
+#: src/main.rs:99
 msgid "  * {} [ path: {}/{}, repository: {} ]"
 msgstr "  * {} [ tchimin : {}/{}, depot : {} ]"
 
-#: src/main.rs:98
+#: src/main.rs:111
 msgid ""
 "Try installing with:\n"
 "   "
 msgstr ""
 "Sayîz d' l' astaler avou :\n"
 "   "
+
+#: src/main.rs:142
+msgid "command not found"
+msgstr "comande nén trovêye"

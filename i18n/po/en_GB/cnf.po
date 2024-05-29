@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: @PACKAGE@\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-23 14:34+0000\n"
+"POT-Creation-Date: 2024-05-29 11:17+0000\n"
 "PO-Revision-Date: 2015-10-17 14:30+0200\n"
 "Last-Translator: Richard Brown <rbrown@suse.com>\n"
 "Language-Team: English (United Kingdom) <http://10n.opensuse.org/projects/"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 2.3\n"
 
-#: src/main.rs:37
+#: src/main.rs:47
 msgid ""
 "Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
@@ -26,7 +26,7 @@ msgstr ""
 "Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
 "whether it contains the mentioned path."
 
-#: src/main.rs:43
+#: src/main.rs:53
 msgid ""
 "Absolute path to '{}' is '{}', so running it may require superuser "
 "privileges (eg. root)."
@@ -34,28 +34,28 @@ msgstr ""
 "Absolute path to '{}' is '{}', so running it may require superuser "
 "privileges (eg. root)."
 
-#: src/main.rs:63
-msgid "command not found"
-msgstr "command not found"
-
-#: src/main.rs:69
+#: src/main.rs:82
 msgid "<selected_package>"
 msgstr "<selected_package>"
 
-#: src/main.rs:76
+#: src/main.rs:89
 msgid "The program '{}' can be found in the following package:"
 msgid_plural "The program '{}' can be found in following packages:"
 msgstr[0] "The program '{}' can be found in the following package:"
 msgstr[1] "The program '{}' can be found in following packages:"
 
-#: src/main.rs:86
+#: src/main.rs:99
 msgid "  * {} [ path: {}/{}, repository: {} ]"
 msgstr "  * {} [ path: {}/{}, repository: {} ]"
 
-#: src/main.rs:98
+#: src/main.rs:111
 msgid ""
 "Try installing with:\n"
 "   "
 msgstr ""
 "Try installing with:\n"
 "   "
+
+#: src/main.rs:142
+msgid "command not found"
+msgstr "command not found"
