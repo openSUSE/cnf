@@ -27,7 +27,7 @@ fn main() {
         .header("wrapper.h")
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
-        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks))
         .allowlist_type(".*Pool")
         .allowlist_type("solv_knownid.*")
         .allowlist_var("SEARCH_STRING")
