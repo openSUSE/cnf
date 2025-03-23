@@ -1,0 +1,63 @@
+# Esperanto translations for cnf package.
+# Copyright (C) 2023 openSUSE project
+# This file is distributed under the same license as the cnf package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cnf 0.3.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-05-29 11:17+0000\n"
+"PO-Revision-Date: 2021-06-16 02:58+0000\n"
+"Last-Translator: Edouard Tavinor <edtavinor@posteo.de>\n"
+"Language-Team: Esperanto <https://l10n.opensuse.org/projects/scout/command-not-"
+"found-master/eo/>\n"
+"Language: eo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 4.6.2\n"
+"X-Poedit-Language: Esperanto\n"
+"X-Poedit-Country: MONDO\n"
+
+#: src/main.rs:47
+msgid ""
+"Absolute path to '{}' is '{}'. Please check your $PATH variable to see "
+"whether it contains the mentioned path."
+msgstr ""
+"La absoluta dosierindiko al '{}' estas '{}'. Bonvolu kontroli vian $PATH variablon "
+"por certigi ke ĝi enhavas la menciitan dosierindikon."
+
+#: src/main.rs:53
+msgid ""
+"Absolute path to '{}' is '{}', so running it may require superuser "
+"privileges (eg. root)."
+msgstr ""
+"La absoluta doserindiko al '{}' estas '{}'. Eblas ke lanĉi ĝin necesas ĉefuzantajn "
+"rajtojn (ekz. root)."
+
+#: src/main.rs:82
+msgid "<selected_package>"
+msgstr "<elektita_pakaĴo>"
+
+#: src/main.rs:89
+msgid "The program '{}' can be found in the following package:"
+msgid_plural "The program '{}' can be found in following packages:"
+msgstr[0] "La programo '{}' estas trovebla en jena pakaĵo:"
+msgstr[1] "La programo '{}' estas trovebla en jenaj pakaĵoj:"
+
+#: src/main.rs:99
+msgid "  * {} [ path: {}/{}, repository: {} ]"
+msgstr "  * {} [ dosierindiko: {}/{}, deponejo: {} ]"
+
+#: src/main.rs:111
+msgid ""
+"Try installing with:\n"
+"   "
+msgstr ""
+"Provu instali ĝin per:\n"
+"   "
+
+#: src/main.rs:142
+msgid "command not found"
+msgstr "komando ne trovita"
