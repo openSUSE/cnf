@@ -135,7 +135,7 @@ fn load_repos<'a>() -> Result<Vec<SolvInput>, ErrorKind<'a>> {
     Ok(repos)
 }
 
-impl<'a> fmt::Display for ErrorKind<'a> {
+impl fmt::Display for ErrorKind<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ErrorKind::CommandNotFound(term) => {
@@ -168,18 +168,18 @@ impl<'a> fmt::Display for ErrorKind<'a> {
 
 impl From<glob::PatternError> for ErrorKind<'_> {
     fn from(value: glob::PatternError) -> Self {
-        return ErrorKind::PatternError(value);
+        ErrorKind::PatternError(value)
     }
 }
 
 impl From<glob::GlobError> for ErrorKind<'_> {
     fn from(value: glob::GlobError) -> Self {
-        return ErrorKind::GlobError(value);
+        ErrorKind::GlobError(value)
     }
 }
 
 impl From<std::io::Error> for ErrorKind<'_> {
     fn from(value: std::io::Error) -> Self {
-        return ErrorKind::IOError(value);
+        ErrorKind::IOError(value)
     }
 }
