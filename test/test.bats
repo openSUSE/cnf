@@ -67,4 +67,10 @@ setup() {
     assert_output --partial "The program 'cmake' can be found in following packages:"
 }
 
+@test "issue26: do not list not installable files" {
+    run root.sh '/usr/bin/cnf' 'fractal'
+    pkg_lines="$(printf '%s\n' "$output" | grep -c -E '^  \*')"
+    [ "$pkg_lines" -eq 2 ]
+}
+
 # TODO: install i18n
