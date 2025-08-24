@@ -1,21 +1,21 @@
-use std::fs::File;
-use std::io;
 use std::io::BufRead;
-use std::path::PathBuf;
 use std::result::Result;
 
+#[derive(Debug, Clone)]
 pub struct Repo {
     pub enabled: bool,
     pub name: String,
 }
 
-pub fn repo_enabled(path: &PathBuf) -> Result<Repo, std::io::Error> {
-    let lines = read_lines(path)?;
+pub fn repo_enabled<R: BufRead>(reader: R) -> Result<Repo, std::io::Error> {
     let mut name = String::from("N/A");
 
-    for line in lines.map_while(Result::ok) {
+    for line in reader.lines().map_while(Result::ok) {
         if line.starts_with('[') && line.ends_with(']') {
-            name = line.replace(&['[', ']'][..], "");
+            name = line
+                .trim_start_matches('[')
+                .trim_end_matches(']')
+                .to_string();
         }
         if line.starts_with("enabled") && line.ends_with('1') {
             return Ok(Repo {
@@ -30,14 +30,34 @@ pub fn repo_enabled(path: &PathBuf) -> Result<Repo, std::io::Error> {
     })
 }
 
-//https://doc.rust-lang.org/stable/rust-by-example/std_misc/file/read_lines.html
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
 
-// The output is wrapped in a Result to allow matching on errors
-// Returns an Iterator to the Reader of the lines of the file.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<std::path::Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
+    #[test]
+    fn test_repo_enabled_true() {
+        let repo_content = "[main]\nenabled=1\n";
+        let reader = Cursor::new(repo_content);
+        let repo = repo_enabled(reader).unwrap();
+        assert!(repo.enabled);
+        assert_eq!(repo.name, "main");
+    }
+
+    #[test]
+    fn test_repo_enabled_false() {
+        let repo_content = "[other]\nenabled=0\n";
+        let reader = Cursor::new(repo_content);
+        let repo = repo_enabled(reader).unwrap();
+        assert!(!repo.enabled);
+        assert_eq!(repo.name, "other");
+    }
+
+    #[test]
+    fn test_repo_name_parsing() {
+        let repo_content = "[GNOME_Next]\nenabled=1\n";
+        let reader = Cursor::new(repo_content);
+        let repo = repo_enabled(reader).unwrap();
+        assert_eq!(repo.name, "GNOME_Next");
+    }
 }

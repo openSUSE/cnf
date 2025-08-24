@@ -3,6 +3,8 @@ extern crate glob;
 extern crate tr;
 
 use std::fmt;
+use std::fs::File;
+use std::io::BufReader;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::exit;
@@ -77,7 +79,7 @@ fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), Erro
     }
 
     let suggested_package = if results.len() == 1 {
-        results[0].Package.clone()
+        results[0].package.clone()
     } else {
         tr!("<selected_package>")
     };
@@ -97,10 +99,10 @@ fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), Erro
             "{}",
             tr!(
                 "  * {} [ path: {}/{}, repository: {} ]",
-                r.Package,
-                r.Path,
+                r.package,
+                r.path,
                 &term,
-                r.Repo
+                r.repo
             )
         );
     }
@@ -119,8 +121,10 @@ fn load_repos<'a>() -> Result<Vec<SolvInput>, ErrorKind<'a>> {
     let mut repos: Vec<SolvInput> = Vec::new();
     for repo in glob::glob(REPO_GLOB)? {
         let repo = repo?;
+        let file = File::open(repo)?;
+        let reader = BufReader::new(file);
 
-        let info = ini::repo_enabled(&repo)?;
+        let info = ini::repo_enabled(reader)?;
         if info.enabled {
             let solv_glob = format!("/var/cache/zypp/solv/{}/solv", info.name.replace('/', "_"));
             for path in glob::glob(&solv_glob)? {
