@@ -9,10 +9,12 @@ include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 extern crate libc;
 
 use crate::{ErrorKind, SolvInput};
+use libc::{uname, utsname};
 use std::env;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::io;
+use std::os::raw::c_char;
 
 pub struct SPool {
     pool: *mut Pool,
@@ -31,6 +33,15 @@ impl SPool {
             if ptr.is_null() {
                 return Err(ErrorKind::IsNULL("pool_create"));
             }
+
+            let mut uts = std::mem::zeroed::<utsname>();
+            if uname(&mut uts) == 0 {
+                pool_setarch(ptr, uts.machine.as_ptr() as *const c_char);
+            } else {
+                let errno = *libc::__errno_location();
+                return Err(ErrorKind::IOError(io::Error::from_raw_os_error(errno)));
+            }
+
             ptr
         };
 
@@ -123,11 +134,10 @@ unsafe extern "C" fn callback(
     kv: *mut s_KeyValue,
 ) -> i32 {
     // code does not assert callback data, those are a responsibility of a libsolv/caller
-
     let append: &mut &mut dyn FnMut(Result<(String, String, String), ErrorKind<'static>>) =
         &mut *(cbdata as *mut _);
 
-    let result: Result<(String, String, String), ErrorKind<'static>> =
+    let result: Result<(bool, String, String, String), ErrorKind<'static>> =
         CStr::from_ptr((*(*s).repo).name)
             .to_str()
             .map_err(|err: std::str::Utf8Error| -> ErrorKind { ErrorKind::String(err.to_string()) })
@@ -151,12 +161,32 @@ unsafe extern "C" fn callback(
                 })
                 .map(|path| (repo, name, path))
             })
-            .map(|(repo, name, path)| (String::from(repo), String::from(name), String::from(path)));
+            .map(|(repo, name, path)| {
+                (
+                    is_installable(s),
+                    String::from(repo),
+                    String::from(name),
+                    String::from(path),
+                )
+            });
 
-    let ret = match result {
+    match result {
         Err(_) => -1,
-        _ => 0,
-    };
-    append(result);
-    ret
+        Ok((false, _, _, _)) => 0,
+        Ok((true, r, n, p)) => {
+            append(Ok((r, n, p)));
+            0
+        }
+    }
+}
+
+unsafe fn is_installable(s: *mut s_Solvable) -> bool {
+    let solvable: &s_Solvable = &*s;
+    let s_repo = solvable.repo;
+    let mut installable = false;
+    if !s_repo.is_null() {
+        let pool = (*s_repo).pool;
+        installable = cnf_pool_installable(pool, s) == 1;
+    }
+    installable
 }

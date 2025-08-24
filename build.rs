@@ -5,18 +5,22 @@ use std::path::PathBuf;
 
 fn main() {
     // Tell cargo to look for libraries for various distributions
-    if std::path::Path::new("/usr/lib64/libsolv.a").exists() {
-        // openSUSE: has a static library only
-        println!("cargo:rustc-link-search=/usr/lib64");
-        println!("cargo:rustc-link-lib=static=solv");
+    if std::path::Path::new("/lib64/libsolv.so.1").exists() {
+        // openSUSE and SUSE
+        println!("cargo:rustc-link-search=/lib64");
     } else {
-        // ubuntu-latest: this gets used on github actions and has a dynamic library only
+        // ubuntu-latest: this gets used on github actions and has a different path
         println!("cargo:rustc-link-search=/usr/lib/x86_64-linux-gnu");
-        println!("cargo:rustc-link-lib=solv");
     }
+    println!("cargo:rustc-link-lib=solv");
 
     // Tell cargo to invalidate the built crate whenever the wrapper changes
     println!("cargo:rerun-if-changed=wrapper.h");
+
+    // Compile the shim into a .a
+    cc::Build::new()
+        .file("src/solv_shim.c")
+        .compile("solv_shim");
 
     // The bindgen::Builder is the main entry point
     // to bindgen, and lets you build up options for
@@ -32,6 +36,7 @@ fn main() {
         .allowlist_type("solv_knownid.*")
         .allowlist_var("SEARCH_STRING")
         .allowlist_function("pool_search")
+        .allowlist_function("pool_setarch")
         .allowlist_function("pool_create")
         .allowlist_function("pool_free")
         .allowlist_function("repo_create")
@@ -40,6 +45,7 @@ fn main() {
         .allowlist_function("fclose")
         .allowlist_function("solvable_lookup_str")
         .allowlist_function("repodata_dir2str")
+        .allowlist_function("cnf.*")
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.

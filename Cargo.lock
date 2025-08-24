@@ -86,6 +86,7 @@ name = "cnf"
 version = "0.7.0"
 dependencies = [
  "bindgen",
+ "cc",
  "glob",
  "libc",
  "tr",

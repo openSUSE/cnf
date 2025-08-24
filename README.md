@@ -94,7 +94,8 @@ The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) 
 > 6 tests, 0 failures
 > ```
 
-Every test can be executed on a command line. The `root.sh` wrapper mounts the binary to `/usr/bin/cnf` and mounts the `libsolv.so.1` if running on ubuntu-amd64 or if shared library is in `test/libsolv.so.1`. This is done in order to solve the packaging difference of a libsolv between openSUSE and Ubuntu.
+Every test can be executed on a command line. The `root.sh` wrapper mounts the
+binary to `/usr/bin/cnf` and bash/fish integrations.
 
 ```.sh
 ./root.sh /usr/bin/cnf rpm
@@ -105,7 +106,9 @@ Every test can be executed on a command line. The `root.sh` wrapper mounts the b
 
 ## **PowerShell users**
 
-As `cnf` does not integrate with PowerShell by default, please read the issue comment https://github.com/openSUSE/cnf/issues/8#issuecomment-1854638267 to learn how to configure your system properly:
+As `cnf` does not integrate with PowerShell by default, please read the issue
+comment https://github.com/openSUSE/cnf/issues/8#issuecomment-1854638267 to
+learn how to configure your system properly:
 
 <blockQuote>
 
