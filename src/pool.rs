@@ -1,18 +1,20 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-#![allow(dead_code)]
-#![allow(unnecessary_transmutes)]
-#![allow(clippy::upper_case_acronyms)]
-#![allow(clippy::ptr_offset_with_cast)]
+mod bindings {
+    #![allow(non_upper_case_globals)]
+    #![allow(non_camel_case_types)]
+    #![allow(non_snake_case)]
+    #![allow(dead_code)]
+    #![allow(unnecessary_transmutes)]
+    #![allow(clippy::upper_case_acronyms)]
+    #![allow(clippy::ptr_offset_with_cast)]
 
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+}
+use bindings::*;
 
 extern crate libc;
 
 use crate::{ErrorKind, SolvInput};
 use libc::{uname, utsname};
-use std::env;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::io;
@@ -23,9 +25,9 @@ pub struct SPool {
 }
 
 pub struct SearchResult {
-    pub Repo: String,
-    pub Package: String,
-    pub Path: String,
+    pub repo: String,
+    pub package: String,
+    pub path: String,
 }
 
 impl SPool {
@@ -60,8 +62,8 @@ impl SPool {
             }
 
             unsafe {
-                const rdonly: std::os::raw::c_char = 114; // ASCII r
-                let fp = fopen(csolv.into_raw(), &rdonly);
+                const RDONLY: std::os::raw::c_char = 114; // ASCII r
+                let fp = fopen(csolv.into_raw(), &RDONLY);
                 if fp.is_null() {
                     return Err(ErrorKind::IOError(io::Error::last_os_error()));
                 }
@@ -82,25 +84,18 @@ impl SPool {
         })?;
         let mut results: Vec<SearchResult> = Vec::new();
         let mut error: Option<ErrorKind> = None;
-        let mut append = |result: Result<(String, String, String), ErrorKind<'static>>| match result
-        {
+        let mut append = |result: Result<SearchResult, ErrorKind<'static>>| match result {
             Err(err) => error = Some(err),
             Ok(result) => {
-                let (repo, package, path) = result;
-                if path != "/usr/bin" && path != "/usr/sbin" {
+                if result.path != "/usr/bin" && result.path != "/usr/sbin" {
                     return;
                 }
-                results.push(SearchResult {
-                    Repo: repo,
-                    Package: package,
-                    Path: path,
-                });
+                results.push(result);
             }
         };
 
         // https://stackoverflow.com/questions/38995701/how-do-i-pass-a-closure-through-raw-pointers-as-an-argument-to-a-c-function/38997480#38997480
-        let mut trait_obj: &mut dyn FnMut(Result<(String, String, String), ErrorKind<'static>>) =
-            &mut append;
+        let mut trait_obj: &mut dyn FnMut(Result<SearchResult, ErrorKind<'static>>) = &mut append;
         let trait_obj_ref = &mut trait_obj;
 
         unsafe {
@@ -136,59 +131,49 @@ unsafe extern "C" fn callback(
     kv: *mut s_KeyValue,
 ) -> i32 {
     // code does not assert callback data, those are a responsibility of a libsolv/caller
-    let append: &mut &mut dyn FnMut(Result<(String, String, String), ErrorKind<'static>>) =
+    let append: &mut &mut dyn FnMut(Result<SearchResult, ErrorKind<'static>>) =
         &mut *(cbdata as *mut _);
 
-    let result: Result<(bool, String, String, String), ErrorKind<'static>> =
-        CStr::from_ptr((*(*s).repo).name)
-            .to_str()
-            .map_err(|err: std::str::Utf8Error| -> ErrorKind { ErrorKind::String(err.to_string()) })
-            .and_then(|repo: &str| {
-                CStr::from_ptr(solvable_lookup_str(s, solv_knownid_SOLVABLE_NAME as i32))
-                    .to_str()
-                    .map_err(|err: std::str::Utf8Error| -> ErrorKind {
-                        ErrorKind::String(err.to_string())
-                    })
-                    .map(|name| (repo, name))
-            })
-            .and_then(|(repo, name)| {
-                CStr::from_ptr(repodata_dir2str(
-                    data,
-                    (*kv).id,
-                    std::ptr::null::<std::os::raw::c_char>(),
-                ))
-                .to_str()
-                .map_err(|err: std::str::Utf8Error| -> ErrorKind {
-                    ErrorKind::String(err.to_string())
-                })
-                .map(|path| (repo, name, path))
-            })
-            .map(|(repo, name, path)| {
-                (
-                    is_installable(s),
-                    String::from(repo),
-                    String::from(name),
-                    String::from(path),
-                )
-            });
+    let search_result: Result<SearchResult, ErrorKind<'static>> = (|| {
+        let repo = cstr_to_string((*(*s).repo).name)?;
+        let package = cstr_to_string(solvable_lookup_str(s, solv_knownid_SOLVABLE_NAME as i32))?;
+        let path = cstr_to_string(repodata_dir2str(
+            data,
+            (*kv).id,
+            std::ptr::null::<std::os::raw::c_char>(),
+        ))?;
+        Ok(SearchResult {
+            repo,
+            package,
+            path,
+        })
+    })();
 
-    match result {
+    match search_result {
         Err(_) => -1,
-        Ok((false, _, _, _)) => 0,
-        Ok((true, r, n, p)) => {
-            append(Ok((r, n, p)));
+        Ok(result) => {
+            if is_installable(s) {
+                append(Ok(result));
+            }
             0
         }
     }
 }
 
-unsafe fn is_installable(s: *mut s_Solvable) -> bool {
-    let solvable: &s_Solvable = &*s;
+fn cstr_to_string(ptr: *const libc::c_char) -> Result<String, ErrorKind<'static>> {
+    unsafe { CStr::from_ptr(ptr) }
+        .to_str()
+        .map(|s| s.to_owned())
+        .map_err(|e| ErrorKind::String(e.to_string()))
+}
+
+fn is_installable(s: *mut s_Solvable) -> bool {
+    let solvable: &s_Solvable = unsafe { &*s };
     let s_repo = solvable.repo;
     let mut installable = false;
     if !s_repo.is_null() {
-        let pool = (*s_repo).pool;
-        installable = cnf_pool_installable(pool, s) == 1;
+        let pool = unsafe { *s_repo }.pool;
+        installable = unsafe { cnf_pool_installable(pool, s) } == 1;
     }
     installable
 }
