@@ -15,6 +15,7 @@ extern crate libc;
 
 use crate::{ErrorKind, SolvInput};
 use libc::{uname, utsname};
+use std::collections::HashSet;
 use std::ffi::CStr;
 use std::ffi::CString;
 use std::io;
@@ -24,6 +25,7 @@ pub struct SPool {
     pool: *mut Pool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct SearchResult {
     pub repo: String,
     pub package: String,
@@ -110,6 +112,8 @@ impl SPool {
             );
         }
 
+        dedup_results(&mut results);
+
         match error {
             Some(err) => Err(err),
             None => Ok(results),
@@ -176,4 +180,66 @@ fn is_installable(s: *mut s_Solvable) -> bool {
         installable = unsafe { cnf_pool_installable(pool, s) } == 1;
     }
     installable
+}
+
+pub fn dedup_results(results: &mut Vec<SearchResult>) {
+    let mut seen = HashSet::new();
+    results.retain(|r| seen.insert(r.clone()));
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{dedup_results, SearchResult};
+
+    #[test]
+    fn test_dedup_results() {
+        let mut v = vec![
+            SearchResult {
+                repo: "r1".into(),
+                package: "p1".into(),
+                path: "/usr/bin".into(),
+            },
+            SearchResult {
+                repo: "r2".into(),
+                package: "p2".into(),
+                path: "/usr/bin".into(),
+            },
+            SearchResult {
+                repo: "r1".into(),
+                package: "p1".into(),
+                path: "/usr/bin".into(),
+            },
+            SearchResult {
+                repo: "r3".into(),
+                package: "p3".into(),
+                path: "/usr/sbin".into(),
+            },
+            SearchResult {
+                repo: "r2".into(),
+                package: "p2".into(),
+                path: "/usr/bin".into(),
+            },
+        ];
+
+        dedup_results(&mut v);
+
+        let expected = vec![
+            SearchResult {
+                repo: "r1".into(),
+                package: "p1".into(),
+                path: "/usr/bin".into(),
+            },
+            SearchResult {
+                repo: "r2".into(),
+                package: "p2".into(),
+                path: "/usr/bin".into(),
+            },
+            SearchResult {
+                repo: "r3".into(),
+                package: "p3".into(),
+                path: "/usr/sbin".into(),
+            },
+        ];
+        assert_eq!(v, expected);
+    }
 }
