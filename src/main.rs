@@ -14,8 +14,19 @@ use std::vec::Vec;
 mod ini;
 mod pool;
 
-const REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
+const ZYPPER_REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
+// Default value of the reposdir configuration directory
+const DNF5_REPOS_GLOBS: [&str; 3] = [
+    "/etc/yum.repos.d/*.repo",
+    "/etc/distro.repos.d/*.repo",
+    "/usr/share/dnf5/repos.d/*.repo",
+];
 
+#[derive(Clone, Copy)]
+pub enum PackageManager {
+    Zypper,
+    Dnf5,
+}
 pub struct SolvInput {
     name: String,
     path: PathBuf,
@@ -56,7 +67,14 @@ fn main() {
         exit(0);
     }
 
-    let repos = match load_repos() {
+    let pm = if Path::exists(Path::new("/usr/bin/dnf5")) {
+        // Use DNF5 if it's installed (this should probably be set via a config file, in case you have both installed but prefer zypper)
+        PackageManager::Dnf5
+    } else {
+        PackageManager::Zypper
+    };
+
+    let repos = match load_repos(pm) {
         Err(err) => {
             println!("{}", err);
             exit(127);
@@ -64,13 +82,17 @@ fn main() {
         Ok(repos) => repos,
     };
 
-    if let Err(err) = search_in_repos(term, &repos) {
+    if let Err(err) = search_in_repos(pm, term, &repos) {
         println!("{}", err);
         exit(127);
     }
 }
 
-fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), ErrorKind<'a>> {
+fn search_in_repos<'a>(
+    pm: PackageManager,
+    term: &'a str,
+    repos: &'a [SolvInput],
+) -> Result<(), ErrorKind<'a>> {
     let pool = pool::SPool::new(repos)?;
     let results = pool.search(term)?;
 
@@ -113,26 +135,47 @@ fn search_in_repos<'a>(term: &'a str, repos: &'a [SolvInput]) -> Result<(), Erro
         tr!("Try installing with:
    ")
     );
-    println!(" sudo zypper install {}\n", suggested_package);
+    match pm {
+        PackageManager::Zypper => println!(" sudo zypper install {}\n", suggested_package),
+        PackageManager::Dnf5 => println!(" sudo dnf5 install {}\n", suggested_package),
+    }
     Ok(())
 }
 
-fn load_repos<'a>() -> Result<Vec<SolvInput>, ErrorKind<'a>> {
+fn load_repos<'a>(pm: PackageManager) -> Result<Vec<SolvInput>, ErrorKind<'a>> {
     let mut repos: Vec<SolvInput> = Vec::new();
-    for repo in glob::glob(REPO_GLOB)? {
-        let repo = repo?;
-        let file = File::open(repo)?;
-        let reader = BufReader::new(file);
+    let globs = match pm {
+        PackageManager::Zypper => &[ZYPPER_REPO_GLOB] as &[&str],
+        PackageManager::Dnf5 => &DNF5_REPOS_GLOBS as &[&str],
+    };
+    for glob in globs {
+        for repo in glob::glob(glob)? {
+            let repo = repo?;
+            let file = File::open(repo)?;
+            let reader = BufReader::new(file);
 
-        let info = ini::repo_enabled(reader)?;
-        if info.enabled {
-            let solv_glob = format!("/var/cache/zypp/solv/{}/solv", info.name.replace('/', "_"));
-            for path in glob::glob(&solv_glob)? {
-                let i = SolvInput {
-                    name: info.name.clone(),
-                    path: path?,
+            let info = ini::repo_enabled(reader)?;
+            if info.enabled {
+                let solv_glob = match pm {
+                    PackageManager::Zypper => {
+                        format!("/var/cache/zypp/solv/{}/solv", info.name.replace('/', "_"))
+                    }
+
+                    // This uses the default system_cachedir configuration open for dnf5
+                    // None superusers however use cachedir option (which defaults to ~/.cache/libdnf5)
+                    // I'm choosing the system one as dnf5 is more likely to be run with sudo?
+                    PackageManager::Dnf5 => format!(
+                        "/var/cache/libdnf5/{}-*/solv/*.solv",
+                        info.name.replace('/', "_")
+                    ),
                 };
-                repos.push(i);
+                for path in glob::glob(&solv_glob)? {
+                    let i = SolvInput {
+                        name: info.name.clone(),
+                        path: path?,
+                    };
+                    repos.push(i);
+                }
             }
         }
     }
