@@ -6,17 +6,18 @@
 
 ## **Differences**
 
-|                                    | **`cnf`**         | **`scout(cnf)`**              |
-|------------------------------------|-------------------|-------------------------------|
-| **Uses**                           | `libsolv`         | `libsolv`                     |
-| **Written in**                     | Rust              | Shell, two packages in Python |
-| **Detect enabled/disabled repos?** | Yes               | Yes                           |
-| **Tries to refresh repos**         | No                | Yes                           |
-| **`bash` integration**             | Yes               | Yes                           |
-| **`zsh` integration**              | Yes               | Yes                           |
-| **Disable integration**            | Uninstall package | Magic variable                |
-| **Localization**                   | Yes (UTF-8 only)  | Yes                           |
-| **Package Managers Queried**       | Dnf5, Zypper      | Zypper                        |
+|                                    | **`cnf`**                 | **`scout(cnf)`**              |
+|------------------------------------|---------------------------|-------------------------------|
+| **Uses**                           | `libsolv`                 | `libsolv`                     |
+| **Written in**                     | Rust                      | Shell, two packages in Python |
+| **Detect enabled/disabled repos?** | Yes                       | Yes                           |
+| **Tries to refresh repos**         | No                        | Yes                           |
+| **`bash` integration**             | Yes                       | Yes                           |
+| **`zsh` integration**              | Yes                       | Yes                           |
+| **`fish` integration**             | Included with fish 1.23.1 | Included with fish 1.23.1     |
+| **Disable integration**            | Uninstall package         | Magic variable                |
+| **Localization**                   | Yes (UTF-8 only)          | Yes                           |
+| **Package Managers Queried**       | Dnf5, Zypper              | Zypper                        |
 
 ## **Build**
 
@@ -58,10 +59,10 @@ To query installed programs in `/usr/bin`:
 > Absolute path to 'vim' is '/usr/bin/vim'. Please check your $PATH variable to see whether it contains the mentioned path
 > ```
 
-##  **Integrate with `bash` and `zsh`**
+##  **Integrate with `bash`, `zsh`, and `fish`**
 
 ```.sh
-source command_not_found.bash # or command_not_found.zsh
+source command_not_found.bash # or command_not_found.zsh, or command_not_found.fish
 export COMMAND_NOT_FOUND_BIN=./target/debug/cnf
 cmake
 ```
