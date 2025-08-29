@@ -57,10 +57,10 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: test/
-          file: test/Dockerfile
+          file: test/Zypper-Dockerfile
           load: true
           push: false
-          tags: local/cnf-ci:latest
+          tags: local/cnf-ci-zypper:latest
 
       -
         name: Integration test
