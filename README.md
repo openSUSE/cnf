@@ -58,10 +58,10 @@ To query installed programs in `/usr/bin`:
 > Absolute path to 'vim' is '/usr/bin/vim'. Please check your $PATH variable to see whether it contains the mentioned path
 > ```
 
-##  **Integrate with `bash`**
+##  **Integrate with `bash` and `zsh`**
 
 ```.sh
-source command_not_found_bash
+source command_not_found.bash # or command_not_found.zsh
 export COMMAND_NOT_FOUND_BIN=./target/debug/cnf
 cmake
 ```
