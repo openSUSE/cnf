@@ -1,4 +1,4 @@
-# Tumbleweed based CI image for cnf integration testing
+# Tumbleweed based CI image for cnf integration testing with zypper
 FROM registry.opensuse.org/opensuse/tumbleweed
 
 ADD passwd /etc/passwd

@@ -32,4 +32,4 @@ docker \
     --rm \
     --user "${USER}" \
     ${VOLUMES[*]} \
-    local/cnf-ci:latest "${@}"
+    local/cnf-ci-zypper:latest "${@}"

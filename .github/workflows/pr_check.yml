@@ -52,16 +52,16 @@ jobs:
       - uses: docker/setup-buildx-action@v2
 
       -
-        name: Build openSUSE Tumbleweed image
+        name: Build openSUSE Tumbleweed image with zypper
         uses: docker/build-push-action@v4
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: test/
-          file: test/Dockerfile
+          file: test/zypper.dockerfile
           load: true
           push: false
-          tags: local/cnf-ci:latest
+          tags: local/cnf-ci-zypper:latest
 
       -
         name: Integration test
