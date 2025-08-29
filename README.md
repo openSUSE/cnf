@@ -17,7 +17,7 @@
 | **`fish` integration**             | Included with fish 1.23.1 | Included with fish 1.23.1     |
 | **Disable integration**            | Uninstall package         | Magic variable                |
 | **Localization**                   | Yes (UTF-8 only)          | Yes                           |
-| **Package Managers Queried**       | Dnf5, Zypper              | Zypper                        |
+| **Package Managers Queried**       | Dnf5, Dnf4, Zypper        | Zypper                        |
 
 ## **Build**
 
