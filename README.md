@@ -16,6 +16,7 @@
 | **`zsh` integration**              | Yes               | Yes                           |
 | **Disable integration**            | Uninstall package | Magic variable                |
 | **Localization**                   | Yes (UTF-8 only)  | Yes                           |
+| **Package Managers Queried**       | Dnf5, Zypper      | Zypper                        |
 
 ## **Build**
 
