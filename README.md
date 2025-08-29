@@ -77,7 +77,13 @@ cmake
 
 ## **Integration tests**
 
-Integration tests runs inside docker image tagged `local/cnf-ci-zypper`. It is built as a part of Github Action and can be built locally as `cd test; docker build -t local/cnf-ci-zypper:latest -f zypper.dockerfile .`
+Integration tests runs inside docker images tagged `local/cnf-ci-zypper` and `local/cnf-ci-dnf5`. these are built as a part of Github Action and can be built locally with:
+
+```.sh
+for pm in zypper dnf5; do
+    docker build -t local/cnf-ci-$pm:latest -f test/$pm.dockerfile test
+done
+```
 
 The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) and in order to make it run, one needs to initialize the git submodules (`git submodule update --init`). Then tests can be executed using a following command
 
@@ -86,20 +92,32 @@ The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) 
 ```
 > ```.log
 > test.bats
->  ✓ root: installed /usr/bin/rpm
-> >  ✓ root: installed /usr/sbin/sysctl
->  ✓ root: not installed xnake
->  ✓ root: not installed make
->  ✓ root: not installed cmake
->  ✓ nonroot: not installed cmake
->  ✓ nonroot: bash without handler: not installed cmake
->  ✓ nonroot: bash handler: not installed cmake
->  ✓ nonroot: zsh without handler: not installed cmake
->  ✓ nonroot: zsh handler: not installed cmake
->  ✓ nonroot: fish handler: not installed cmake
->  ✓ issue26: do not list not installable files
->
-> 12 tests, 0 failures
+>  ✓ zypper root: installed /usr/bin/rpm
+>  ✓ zypper root: installed /usr/sbin/sysctl
+>  ✓ zypper root: not installed xnake
+>  ✓ zypper root: not installed make
+>  ✓ zypper root: not installed cmake
+>  ✓ zypper nonroot: not installed cmake
+>  ✓ zypper nonroot: bash without handler: not installed cmake
+>  ✓ zypper nonroot: bash handler: not installed cmake
+>  ✓ zypper nonroot: zsh without handler: not installed cmake
+>  ✓ zypper nonroot: zsh handler: not installed cmake
+>  ✓ zypper nonroot: fish handler: not installed cmake
+>  ✓ zypper issue26: do not list not installable files
+>  ✓ dnf5 root: installed /usr/bin/rpm
+>  ✓ dnf5 root: installed /usr/sbin/sysctl
+>  ✓ dnf5 root: not installed xnake
+>  ✓ dnf5 root: not installed make
+>  ✓ dnf5 root: not installed cmake
+>  ✓ dnf5 nonroot: not installed cmake
+>  ✓ dnf5 nonroot: bash without handler: not installed cmake
+>  ✓ dnf5 nonroot: bash handler: not installed cmake
+>  ✓ dnf5 nonroot: zsh without handler: not installed cmake
+>  ✓ dnf5 nonroot: zsh handler: not installed cmake
+>  ✓ dnf5 nonroot: fish handler: not installed cmake
+>  ✓ dnf5 issue26: do not list not installable files
+> 
+> 24 tests, 0 failures
 > ```
 
 Every test can be executed on a command line. The `root.sh` wrapper mounts the

@@ -62,7 +62,17 @@ jobs:
           load: true
           push: false
           tags: local/cnf-ci-zypper:latest
-
+      -
+        name: Build openSUSE Tumbleweed image with dnf5
+        uses: docker/build-push-action@v4
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: test/
+          file: test/dnf5.dockerfile
+          load: true
+          push: false
+          tags: local/cnf-ci-dnf5:latest
       -
         name: Integration test
         run: ./test/bats/bin/bats ./test
