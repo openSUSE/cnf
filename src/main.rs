@@ -16,7 +16,9 @@ mod pool;
 
 const ZYPPER_REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
 // Default value of the reposdir configuration directory
-const DNF5_REPOS_GLOBS: [&str; 3] = [
+// (Note that /etc/dnf/repos.d is patched in by the openSUSE dnf5 package)
+const DNF5_REPOS_GLOBS: [&str; 4] = [
+    "/etc/dnf/repos.d/*.repo",
     "/etc/yum.repos.d/*.repo",
     "/etc/distro.repos.d/*.repo",
     "/usr/share/dnf5/repos.d/*.repo",
