@@ -77,10 +77,10 @@ cmake
 
 ## **Integration tests**
 
-Integration tests runs inside docker images tagged `local/cnf-ci-zypper` and `local/cnf-ci-dnf5`. these are built as a part of Github Action and can be built locally with:
+Integration tests runs inside docker images tagged `local/cnf-ci-zypper`, `local/cnf-ci-dnf`, and `local/cnf-ci-dnf5`. these are built as a part of Github Action and can be built locally with:
 
 ```.sh
-for pm in zypper dnf5; do
+for pm in zypper dnf dnf5; do
     docker build -t local/cnf-ci-$pm:latest -f test/$pm.dockerfile test
 done
 ```
@@ -91,7 +91,6 @@ The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) 
 ./test/bats/bin/bats ./test/
 ```
 > ```.log
-> test.bats
 >  ✓ zypper root: installed /usr/bin/rpm
 >  ✓ zypper root: installed /usr/sbin/sysctl
 >  ✓ zypper root: not installed xnake
@@ -104,6 +103,18 @@ The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) 
 >  ✓ zypper nonroot: zsh handler: not installed cmake
 >  ✓ zypper nonroot: fish handler: not installed cmake
 >  ✓ zypper issue26: do not list not installable files
+>  ✓ dnf root: installed /usr/bin/rpm
+>  ✓ dnf root: installed /usr/sbin/sysctl
+>  ✓ dnf root: not installed xnake
+>  ✓ dnf root: not installed make
+>  ✓ dnf root: not installed cmake
+>  ✓ dnf nonroot: not installed cmake
+>  ✓ dnf nonroot: bash without handler: not installed cmake
+>  ✓ dnf nonroot: bash handler: not installed cmake
+>  ✓ dnf nonroot: zsh without handler: not installed cmake
+>  ✓ dnf nonroot: zsh handler: not installed cmake
+>  ✓ dnf nonroot: fish handler: not installed cmake
+>  ✓ dnf issue26: do not list not installable files
 >  ✓ dnf5 root: installed /usr/bin/rpm
 >  ✓ dnf5 root: installed /usr/sbin/sysctl
 >  ✓ dnf5 root: not installed xnake
@@ -117,7 +128,7 @@ The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) 
 >  ✓ dnf5 nonroot: fish handler: not installed cmake
 >  ✓ dnf5 issue26: do not list not installable files
 > 
-> 24 tests, 0 failures
+> 36 tests, 0 failures
 > ```
 
 Every test can be executed on a command line. The `root.sh` wrapper mounts the
