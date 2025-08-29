@@ -32,8 +32,8 @@ To query not installed programs:
 ```
 > ```.log
 > The program 'cmake' can be found in following packages:
->   * cmake-full [ path: /usr/bin/cmake, repository: zypp (repo-oss) ]
->   * cmake-mini [ path: /usr/bin/cmake, repository: zypp (repo-oss) ]
+>   * cmake-full [ path: /usr/bin/cmake, repository: repo-oss ]
+>   * cmake-mini [ path: /usr/bin/cmake, repository: repo-oss ]
 > 
 > Try installing with:
 >     sudo zypper install <selected_package>
@@ -66,8 +66,8 @@ cmake
 ```
 > ```.log
 > The program 'cmake' can be found in following packages:
->   * cmake-full [ path: /usr/bin/cmake, repository: zypp (repo-oss) ]
->   * cmake-mini [ path: /usr/bin/cmake, repository: zypp (repo-oss) ]
+>   * cmake-full [ path: /usr/bin/cmake, repository: repo-oss ]
+>   * cmake-mini [ path: /usr/bin/cmake, repository: repo-oss ]
 > 
 > Try installing with:
 >     sudo zypper install <selected_package>
@@ -85,13 +85,19 @@ The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) 
 > ```.log
 > test.bats
 >  ✓ root: installed /usr/bin/rpm
->  ✓ root: installed /usr/sbin/sysctl
->  ✓ root: not installed single package
->  ✓ root: not installed more packages
->  ✓ root: bash handler: not installed more packages
->  ✓ nonroot: not installed more packages
-> 
-> 6 tests, 0 failures
+> >  ✓ root: installed /usr/sbin/sysctl
+>  ✓ root: not installed xnake
+>  ✓ root: not installed make
+>  ✓ root: not installed cmake
+>  ✓ nonroot: not installed cmake
+>  ✓ nonroot: bash without handler: not installed cmake
+>  ✓ nonroot: bash handler: not installed cmake
+>  ✓ nonroot: zsh without handler: not installed cmake
+>  ✓ nonroot: zsh handler: not installed cmake
+>  ✓ nonroot: fish handler: not installed cmake
+>  ✓ issue26: do not list not installable files
+>
+> 12 tests, 0 failures
 > ```
 
 Every test can be executed on a command line. The `root.sh` wrapper mounts the
