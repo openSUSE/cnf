@@ -72,8 +72,11 @@ fn main() {
     let pm = if Path::exists(Path::new("/usr/bin/dnf5")) {
         // Use DNF5 if it's installed (this should probably be set via a config file, in case you have both installed but prefer zypper)
         PackageManager::Dnf5
-    } else {
+    } else if Path::exists(Path::new("/usr/bin/zypper")) {
         PackageManager::Zypper
+    } else {
+        println!("Neither /usr/bin/dnf5 nor /usr/bin/zypper could be found.");
+        exit(127);
     };
 
     let repos = match load_repos(pm) {
