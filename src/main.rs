@@ -16,6 +16,12 @@ mod pool;
 
 const ZYPPER_REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
 // Default value of the reposdir configuration directory
+const DNF4_REPOS_GLOBS: [&str; 3] = [
+    "/etc/dnf/repos.d/*.repo",
+    "/etc/yum.repos.d/*.repo",
+    "/etc/distro.repos.d/*.repo"
+];
+// Default value of the reposdir configuration directory
 // (Note that /etc/dnf/repos.d is patched in by the openSUSE dnf5 package)
 const DNF5_REPOS_GLOBS: [&str; 4] = [
     "/etc/dnf/repos.d/*.repo",
@@ -27,6 +33,7 @@ const DNF5_REPOS_GLOBS: [&str; 4] = [
 #[derive(Clone, Copy)]
 pub enum PackageManager {
     Zypper,
+    Dnf4,
     Dnf5,
 }
 pub struct SolvInput {
@@ -70,12 +77,16 @@ fn main() {
     }
 
     let pm = if Path::exists(Path::new("/usr/bin/dnf5")) {
-        // Use DNF5 if it's installed (this should probably be set via a config file, in case you have both installed but prefer zypper)
+        // Use DNF5 if it's installed from the openSUSE repo (since zypper is the default, someone is only likely to have dnf5 installed if they want to use it)
         PackageManager::Dnf5
+    } else if Path::exists(Path::new("/usr/bin/dnf")) {
+        // Use DNF4 if it's installed, but dnf5 isn't
+        // (in case a dnf5 user symlinks /usr/bin/dnf to /usr/bin/dnf5, this goes after the dnf5 check)
+        PackageManager::Dnf4
     } else if Path::exists(Path::new("/usr/bin/zypper")) {
         PackageManager::Zypper
     } else {
-        println!("Neither /usr/bin/dnf5 nor /usr/bin/zypper could be found.");
+        println!("Neither /usr/bin/dnf5, /usr/bin/dnf, norr /usr/bin/zypper could be found.");
         exit(127);
     };
 
@@ -142,6 +153,7 @@ fn search_in_repos<'a>(
     );
     match pm {
         PackageManager::Zypper => println!(" sudo zypper install {}\n", suggested_package),
+        PackageManager::Dnf4 => println!(" sudo dnf install {}\n", suggested_package),
         PackageManager::Dnf5 => println!(" sudo dnf5 install {}\n", suggested_package),
     }
     Ok(())
@@ -151,6 +163,7 @@ fn load_repos<'a>(pm: PackageManager) -> Result<Vec<SolvInput>, ErrorKind<'a>> {
     let mut repos: Vec<SolvInput> = Vec::new();
     let globs = match pm {
         PackageManager::Zypper => &[ZYPPER_REPO_GLOB] as &[&str],
+        PackageManager::Dnf4 => &DNF4_REPOS_GLOBS as &[&str],
         PackageManager::Dnf5 => &DNF5_REPOS_GLOBS as &[&str],
     };
     for glob in globs {
@@ -165,10 +178,16 @@ fn load_repos<'a>(pm: PackageManager) -> Result<Vec<SolvInput>, ErrorKind<'a>> {
                     PackageManager::Zypper => {
                         format!("/var/cache/zypp/solv/{}/solv", info.name.replace('/', "_"))
                     }
+                    // This uses the default system_cachedir configuration option for dnf
+                    // Non superusers however use cachedir option (which defaults to /var/tmp/dnf-<username>-<random suffix>)
+                    // I'm choosing the system one as dnf is more likely to be run with sudo
+                    PackageManager::Dnf4 => format!(
+                        "/var/cache/dnf/{}.solv",
+                        info.name.replace('/', "_")
+                    ),
 
-                    // This uses the default system_cachedir configuration open for dnf5
-                    // None superusers however use cachedir option (which defaults to ~/.cache/libdnf5)
-                    // I'm choosing the system one as dnf5 is more likely to be run with sudo?
+                    // As with dnf4, this uses the default system_cachedir value
+                    // (The default non-superuser cachedir is ~/.cache/libdnf5)
                     PackageManager::Dnf5 => format!(
                         "/var/cache/libdnf5/{}-*/solv/*.solv",
                         info.name.replace('/', "_")
