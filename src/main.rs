@@ -14,22 +14,6 @@ use std::vec::Vec;
 mod ini;
 mod pool;
 
-const ZYPPER_REPO_GLOB: &str = "/etc/zypp/repos.d/*.repo";
-// Default value of the reposdir configuration directory
-const DNF_REPOS_GLOBS: [&str; 3] = [
-    "/etc/dnf/repos.d/*.repo",
-    "/etc/yum.repos.d/*.repo",
-    "/etc/distro.repos.d/*.repo"
-];
-// Default value of the reposdir configuration directory
-// (Note that /etc/dnf/repos.d is patched in by the openSUSE dnf5 package)
-const DNF5_REPOS_GLOBS: [&str; 4] = [
-    "/etc/dnf/repos.d/*.repo",
-    "/etc/yum.repos.d/*.repo",
-    "/etc/distro.repos.d/*.repo",
-    "/usr/share/dnf5/repos.d/*.repo",
-];
-
 #[derive(Clone, Copy)]
 pub enum PackageManager {
     Zypper,
@@ -161,10 +145,21 @@ fn search_in_repos<'a>(
 
 fn load_repos<'a>(pm: PackageManager) -> Result<Vec<SolvInput>, ErrorKind<'a>> {
     let mut repos: Vec<SolvInput> = Vec::new();
+    // These use the default values of the reposdir configuration options for the various package managers
     let globs = match pm {
-        PackageManager::Zypper => &[ZYPPER_REPO_GLOB] as &[&str],
-        PackageManager::Dnf => &DNF_REPOS_GLOBS as &[&str],
-        PackageManager::Dnf5 => &DNF5_REPOS_GLOBS as &[&str],
+        PackageManager::Zypper => &["/etc/zypp/repos.d/*.repo"] as &[&str],
+        PackageManager::Dnf => &[
+            "/etc/dnf/repos.d/*.repo",
+            "/etc/yum.repos.d/*.repo",
+            "/etc/distro.repos.d/*.repo",
+        ] as &[&str],
+        PackageManager::Dnf5 => &[
+            // This first one is patched in by the openSUSE dnf5 package, and is not mentioned in the documentation
+            "/etc/dnf/repos.d/*.repo",
+            "/etc/yum.repos.d/*.repo",
+            "/etc/distro.repos.d/*.repo",
+            "/usr/share/dnf5/repos.d/*.repo",
+        ] as &[&str],
     };
     for glob in globs {
         for repo in glob::glob(glob)? {
@@ -175,16 +170,17 @@ fn load_repos<'a>(pm: PackageManager) -> Result<Vec<SolvInput>, ErrorKind<'a>> {
             let info = ini::repo_enabled(reader)?;
             if info.enabled {
                 let solv_glob = match pm {
+                    // This uses the default solvfilesdir configuration option for libzypp,
+                    // (solvfilesdir defaults to $cachedir/solv, and cachedir defaults to /var/cache/zypp)
                     PackageManager::Zypper => {
                         format!("/var/cache/zypp/solv/{}/solv", info.name.replace('/', "_"))
                     }
                     // This uses the default system_cachedir configuration option for dnf
                     // Non superusers however use cachedir option (which defaults to /var/tmp/dnf-<username>-<random suffix>)
                     // I'm choosing the system one as dnf is more likely to be run with sudo
-                    PackageManager::Dnf => format!(
-                        "/var/cache/dnf/{}.solv",
-                        info.name.replace('/', "_")
-                    ),
+                    PackageManager::Dnf => {
+                        format!("/var/cache/dnf/{}.solv", info.name.replace('/', "_"))
+                    }
 
                     // As with the old dnf, this uses the default system_cachedir value
                     // (The default non-superuser cachedir is ~/.cache/libdnf5)
