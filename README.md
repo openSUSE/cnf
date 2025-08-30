@@ -129,7 +129,7 @@ The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) 
 >  ✓ dnf5 issue26: do not list not installable files
 > 
 > 36 tests, 0 failures
-> ```
+```
 
 Every test can be executed on a command line. The `root.sh` wrapper mounts the
 binary to `/usr/bin/cnf` and bash/fish integrations.
