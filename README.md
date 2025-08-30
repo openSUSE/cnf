@@ -77,7 +77,7 @@ cmake
 
 ## **Integration tests**
 
-Integration tests runs inside docker images tagged `local/cnf-ci-zypper`, `local/cnf-ci-dnf`, and `local/cnf-ci-dnf5`. these are built as a part of Github Action and can be built locally with:
+Integration tests run inside docker images tagged `local/cnf-ci-zypper`, `local/cnf-ci-dnf`, and `local/cnf-ci-dnf5`; these are built as a part of a Github Action and can be built locally with:
 
 ```.sh
 for pm in zypper dnf dnf5; do
@@ -85,12 +85,13 @@ for pm in zypper dnf dnf5; do
 done
 ```
 
-The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) and in order to make it run, one needs to initialize the git submodules (`git submodule update --init`). Then tests can be executed using a following command
+The testing itself is wrapped in [bats](https://github.com/bats-core/bats-core) and in order to make it run, one needs to initialize the git submodules (`git submodule update --init`). Then tests can be executed using following command
 
 ```.sh
 ./test/bats/bin/bats ./test/
 ```
 > ```.log
+> test.bats
 >  ✓ zypper root: installed /usr/bin/rpm
 >  ✓ zypper root: installed /usr/sbin/sysctl
 >  ✓ zypper root: not installed xnake
