@@ -26,10 +26,12 @@ VOLUMES[1]="--volume ${CNF_SRC}:/usr/bin/command-not-found:ro"
 VOLUMES[2]="--volume ${BASH_CNF}:/usr/etc/bash_command_not_found:ro"
 VOLUMES[3]="--volume ${ZSH_CNF}:/usr/etc/zsh_command_not_found:ro"
 
+PM=$1
+shift
 docker \
     run \
     --tty \
     --rm \
     --user "${USER}" \
     ${VOLUMES[*]} \
-    local/cnf-ci:latest "${@}"
+    local/cnf-ci-$PM:latest "${@}"
