@@ -9,8 +9,8 @@ cnf \- A command not found handler for openSUSE
 libsolv(3) under the hood. The source of truth of information about
 repositories, packages and their content.
 .PP
-This works with enabled dnf5 or zypper repostiores: the first one found in /usr/bin will be used.
-Use dnf5 \-\-refresh makecache or zypper \-\-force refresh to update the metadata used.
+This works with enabled dnf5, dnf, or zypper repostiores: the first one found in /usr/bin will be used.
+Use dnf5 \-\-refresh makecache, dnf \-\-refresh makecache, or zypper \-\-force refresh to update the metadata used.
 .PP
 It is typically called through command-not-found mechanism of bash(1) or zsh(1)
 or fish(1). This is enabled via installing the cnf-bash or cnf-zsh
