@@ -21,7 +21,7 @@ function make_test {
     bats_test_function --description "$1" -- "$name"
 }
 
-for PM in zypper dnf dnf5; do
+for PM in ${CNF_CI_PM:-zypper dnf dnf5}; do
 
 make_test "$PM root: installed /usr/bin/rpm" <<EOF
     run root.sh $PM '/usr/bin/cnf' 'rpm'
