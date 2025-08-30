@@ -9,82 +9,94 @@ on:
   workflow_dispatch:
 
 jobs:
-  ci:
+  build:
     runs-on: ubuntu-latest
 
     steps:
 
-      -
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      -
-        name: Install libsolv-dev, libclang-dev and cargo
+      - name: Install libsolv-dev, libclang-dev and cargo
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: libsolv-dev libclang-dev cargo
           version: 1.0
 
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-${{ github.run_id }}
 
-      -
-        name: Build cnf
+      - name: Build cnf
         run: cargo build
 
-      -
-        name: clippy
+      - name: clippy
         run: cargo clippy --all-targets --all-features
         env:
           RUSTFLAGS: "-Dwarnings"
 
-      -
-        name: unit tests
+      - name: unit tests
         run: cargo test
 
-      - name: Install cargo-audit
-        run: cargo install cargo-audit
+      # This is pretty expensive, turn off now.
+      # - name: Install cargo-audit
+      #   run: cargo install cargo-audit
+      #
+      # - name: Run cargo audit
+      #   run: cargo audit --deny warnings
 
-      - name: Run cargo audit
-        run: cargo audit --deny warnings
+  integration-tests:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - manager: zypper
+            file: test/zypper.dockerfile
+            tag: local/cnf-ci-zypper:latest
+          - manager: dnf5
+            file: test/dnf5.dockerfile
+            tag: local/cnf-ci-dnf5:latest
+          - manager: dnf
+            file: test/dnf.dockerfile
+            tag: local/cnf-ci-dnf:latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # needed for bats to work
+          submodules: recursive
+
+      - name: Install libsolv-dev, libclang-dev and cargo
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libsolv-dev libclang-dev cargo
+          version: 1.0
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-${{ github.run_id }}
+
+      - name: Build cnf
+        run: cargo build
 
       - uses: docker/setup-buildx-action@v2
 
-      -
-        name: Build openSUSE Tumbleweed image with zypper
+      - name: Build openSUSE Tumbleweed image with (${{ matrix.manager }})
         uses: docker/build-push-action@v4
         with:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           context: test/
-          file: test/zypper.dockerfile
+          file: ${{ matrix.file }}
           load: true
           push: false
-          tags: local/cnf-ci-zypper:latest
-      -
-        name: Build openSUSE Tumbleweed image with dnf4
-        uses: docker/build-push-action@v4
-        with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          context: test/
-          file: test/dnf.dockerfile
-          load: true
-          push: false
-          tags: local/cnf-ci-dnf:latest
-      -
-        name: Build openSUSE Tumbleweed image with dnf5
-        uses: docker/build-push-action@v4
-        with:
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          context: test/
-          file: test/dnf5.dockerfile
-          load: true
-          push: false
-          tags: local/cnf-ci-dnf5:latest
+          tags: ${{ matrix.tag }}
+
       -
         name: Integration test
-        run: ./test/bats/bin/bats ./test
-
+        run: CNF_CI_PM=${{ matrix.manager }} ./test/bats/bin/bats ./test
