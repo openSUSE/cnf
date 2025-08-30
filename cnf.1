@@ -29,6 +29,12 @@ Try installing with:
 bash(1), zsh(1), fish(1), libsolv(3)
 .SH BUGS
 No support for localization other than UTF-8.
+.PP
+It is assumed that the following configuration variables have not been changed from their openSUSE defaults:
+  for zypper (usually set in /etc/zypp/zypp.conf): reposdir, cachedir, and solvfilesdir
+  for dnf/dnf5 (usually set in /etc/dnf/dnf.conf): reposdir and system_cachedir
+
+
 .SH "AUTHOR"
 .PP
 \fBMichal Vyskocil\fR <\&mvyskocil@opensuse\&.org\&>
