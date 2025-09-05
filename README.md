@@ -142,6 +142,27 @@ binary to `/usr/bin/cnf` and bash/fish integrations.
 > Absolute path to 'rpm' is '/usr/bin/rpm'. Please check your $PATH variable to see whether it contains the mentioned path
 > ```
 
+## dnf backend
+
+The step by step instructions for how to test the dnf part is
+
+```sh
+distrobox ephemeral
+sudo zypper install dnf rpm-repos-openSUSE-Tumbleweed libcurl4
+sudo dnf makecache
+# run osc getbinaries utilities cnf openSUSE_Factory x86_64
+sudo zypper in binaries/cnf-0.9*x86_64.rpm
+cnf fractal
+
+The program 'fractal' can be found in the following package:
+  * fractal [ path: /usr/bin/fractal, repository: opensuse-tumbleweed-oss ]
+
+Try installing with:
+    sudo dnf install fractal
+```
+
+`libcurl4` dependency is mandatory avoiding the `No handler specified` error from `dnf`/`dnf5`.
+
 ## **PowerShell users**
 
 As `cnf` does not integrate with PowerShell by default, please read the issue
