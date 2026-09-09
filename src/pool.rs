@@ -64,8 +64,7 @@ impl SPool {
             }
 
             unsafe {
-                const RDONLY: std::os::raw::c_char = 114; // ASCII r
-                let fp = fopen(csolv.into_raw(), &RDONLY);
+                let fp = fopen(csolv.into_raw(), c"r".as_ptr());
                 if fp.is_null() {
                     return Err(ErrorKind::IOError(io::Error::last_os_error()));
                 }
